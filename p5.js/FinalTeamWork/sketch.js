@@ -942,11 +942,11 @@ sleepInBus=function()
 scene4Back = function() {
   push(); // 좌표계 저장
 
+  frameRate(30);
   let xPosSpeed = 0; // x축으로 이동할 방향 초기화
   let finalXPos = 0; // 최종 x 위치를 저장할 변수
   let scene4_startFrame = 150; // 시작 프레임(초당 30 츠레임-5초)
-  let scene4_endFrame = 450; // 종료 프레임(x축 이동 시간: 6초)
-  frameRate(30);
+  let scene4_endFrame = 450; // 종료 프레임(x축 이동 시간: 10초)
   
   if (frameCount > scene4_startFrame && frameCount < scene4_endFrame) {
     xPosSpeed = (frameCount - scene4_startFrame) * 2;
@@ -1213,19 +1213,24 @@ childTears=function() {
 //아이 엄마 등장
 wonderMom = function() {
     rectMode(CORNER);
-    let startFrame = 150; // 5초를 프레임으로 환산 (60fps 기준)
-    let endFrame = 450;
-    let xPosSpeed = 0;
-    let finalXPos = 0; // 최종 x 위치를 저장할 변수
+    push(); // 좌표계 저장
 
-    if (frameCount > startFrame && frameCount < endFrame) {
-      xPosSpeed = (frameCount - startFrame) * 2;
+    frameRate(30);
+    let xPosSpeed = 0; // x축으로 이동할 방향 초기화
+    let finalXPos = 0; // 최종 x 위치를 저장할 변수
+    let scene4_startFrame = 150; // 시작 프레임(초당 30 츠레임-5초)
+    let scene4_endFrame = 450; // 종료 프레임(x축 이동 시간: 10초)
+  
+    if (frameCount > scene4_startFrame && frameCount < scene4_endFrame) {
+      xPosSpeed = (frameCount - scene4_startFrame) * 2;
       finalXPos = -xPosSpeed;
+    } else if (frameCount >= scene4_endFrame) {
+      finalXPos = -(scene4_endFrame - scene4_startFrame) * 2;
+    } else {
+      finalXPos = 0;
     }
-    else if(frameCount >= endFrame) {
-        xPosSpeed = endFrame;
-        finalXPos = -xPosSpeed; // 최종 위치 고정
-    }
+
+    translate(finalXPos, 0);
   
     push();
     translate(canvasW * 1.8 - xPosSpeed , canvasH * 0.76); // 엄마 위치 설정 (파출소 옆)
