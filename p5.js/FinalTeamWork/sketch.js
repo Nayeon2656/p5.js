@@ -1125,13 +1125,13 @@ cryChild = function() {
   
     // 입
     push();
-    rectMode(CENTER);
     noFill();
     arc(0, canvasH * 0.02, canvasW * 0.03, canvasH * 0.02, PI,0);
     pop();
   
     // 몸통
     push();
+    rectMode(CENTER);
     fill(255);
     rect(-canvasW * 0, canvasH * 0.17, canvasW * 0.07, canvasH * 0.2, 5);
     pop();
