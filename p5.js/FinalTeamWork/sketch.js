@@ -1,5 +1,5 @@
 let currentScene = 0;
-const sceneDurations = [7000, 3000, 7000, 4000, 6000, 5000, 4000, 3500, 10000]; // 씬별 시간 (ms)
+const sceneDurations = [7000, 3000, 7000, 4000, 6000, 22000, 4000, 3500, 10000]; // 씬별 시간 (ms)
 
 let canvasW, canvasH;
 let stage; // 오프닝 단계
@@ -68,6 +68,7 @@ function startSceneTimer() {
 
 // 씬별 그리기 함수들
 
+//Scene1_Opening Credit
 function drawCreditOpening() {
   background(0);
 
@@ -87,6 +88,7 @@ function drawCreditOpening() {
   }
 }
 
+//Scene2_Scene1.지하철 타고 있는 주인공 등장
 function drawScene1() {
     background(220);
     fill(255);
@@ -169,6 +171,7 @@ function drawScene1() {
       canvasW * 0.92, canvasH * 1);   // 좌하단
 }
 
+//Scene3_Scene1-1.지하철에서 오늘의 운세를 확인하는 주인공
 function drawScene1_1() {
     background(220);
   
@@ -218,6 +221,7 @@ function drawScene1_1() {
        //인물-울상이 되는 주인공의 표정
 }
 
+//Scene4.Scene2.걷다가 우산이 날라가는 주인공
 function drawScene2() {
     background(220);
     //배경-보도블록
@@ -244,6 +248,7 @@ function drawScene2() {
        //우산을 아이에게로 가져오는 마우스 인터랙션
 }
 
+//Scene5.Scene3.버스에서 졸다가 깜짝 놀라 하차 벨을 누르는 주인공
 function drawScene3() {
     background(220);
     scene3Back();
@@ -265,6 +270,7 @@ function drawScene3() {
        //사물-마우스 인터랙션과 이로 인한 색상 변화
   }
 
+//Scene6.Scene4.버스 정류장에서 우는 아이를 달래고 경찰서로 데려가는 주인공, 엄마를 발견하고 달려가는 아이
 function drawScene4() {
     background(220);
     //배경
@@ -305,6 +311,7 @@ function drawScene4() {
        //인물- 엄마가 아이를 안아줌
   }
 
+//Scene7.Scene5.아이와 엄마가 멀어지고 아이의 손에서 자신의 우산을 발견하는 주인공공
 function drawScene5() {  //아이와 엄마가 멀어지면서 아이가 손에 들고 있는 우산을 발견함
     background(220);
   
@@ -329,6 +336,7 @@ function drawScene5() {  //아이와 엄마가 멀어지면서 아이가 손에 
        //사물-우산이 빛남
 }
 
+//Scene8.Scene5.1.자신의 불운이 누군가에게 도움이 되었음에 행복을 느끼는 주인공공
 function drawScene5_1() {
     
     background(220); // 배경색 설정
@@ -341,6 +349,7 @@ function drawScene5_1() {
     
 }
 
+//Scene9.Ending Credit
 function drawCreditEnding() {
     background(0);
     fill(255);
@@ -898,15 +907,15 @@ sleepInBus=function()
   else if(elapsedTime<1500 || elapsedTime>2000 && elapsedTime<5000) { // 나머지
     //눈
      strokeWeight(3); // 선 굵기
-     line(canvasW * 0.63, canvasH * 0.56 + canvasH * 0.0001 * (elapsedTime/60), canvasW * 0.636, canvasH * 0.56 + canvasH * 0.0001 * (elapsedTime/60)); // 오른쪽
-     line(canvasW * 0.66, canvasH * 0.56 + canvasH * 0.0001 * (elapsedTime/60), canvasW * 0.666, canvasH * 0.56 + canvasH * 0.0001 * (elapsedTime/60)); // 왼쪽
+     line(canvasW * 0.63, canvasH * 0.56 + canvasH * 0.0001 * frameCount, canvasW * 0.636, canvasH * 0.56 + canvasH * 0.0001 * frameCount); // 오른쪽
+     line(canvasW * 0.66, canvasH * 0.56 + canvasH * 0.0001 * frameCount, canvasW * 0.666, canvasH * 0.56 + canvasH * 0.0001 * frameCount); // 왼쪽
     //입 
-    ellipse(canvasW * 0.647, canvasH * 0.61+ canvasH * 0.0001 * (elapsedTime/60), canvasW * 0.01875, canvasH * 0.002);
+    ellipse(canvasW * 0.647, canvasH * 0.61+ canvasH * 0.0001 * frameCount, canvasW * 0.01875, canvasH * 0.002);
     //앞머리
     push();
     fill(0);
     noStroke();
-    arc(canvasW * 0.65, canvasH * 0.54 + canvasH * 0.0001 * (elapsedTime/60), canvasW * 0.1, canvasH * 0.17+ canvasH * 0.0002 * (elapsedTime/60), PI, 0);
+    arc(canvasW * 0.65, canvasH * 0.54 + canvasH * 0.0001 * frameCount, canvasW * 0.1, canvasH * 0.17+ canvasH * 0.0002 * frameCount, PI, 0);
     pop();
   }
   else {  //졸다가 놀란 표정
@@ -930,14 +939,13 @@ sleepInBus=function()
 
 //4 함수
 //배경
-let scene4_startFrame = 300; // 시작 프레임
-let scene4_endFrame = 600; // 종료 프레임
-
 scene4Back = function() {
   push(); // 좌표계 저장
 
-  let xPosSpeed = 0; // 초기화
+  let xPosSpeed = 0; // x축으로 이동할 방향 초기화
   let finalXPos = 0; // 최종 x 위치를 저장할 변수
+  let scene4_startFrame = 150; // 시작 프레임(초당 30 츠레임-5초)
+  let scene4_endFrame = 450; // 종료 프레임(x축 이동 시간: 6초)
 
   if (frameCount > scene4_startFrame && frameCount < scene4_endFrame) {
     xPosSpeed = (frameCount - scene4_startFrame) * 2;
@@ -950,12 +958,13 @@ scene4Back = function() {
 
   translate(finalXPos, 0);
 
+  //보도 블록
   rectMode(CORNER);
   stroke(0);
   quad(
     canvasW * -1, canvasH * 0.93,  // 좌상단
-    canvasW * 1.1, canvasH * 0.93,  // 우상단
-    canvasW * 1.1, canvasH * 0.98,  // 우하단
+    canvasW * 9.1, canvasH * 0.93,  // 우상단
+    canvasW * 9.1, canvasH * 0.98,  // 우하단
     canvasW * -1, canvasH * 0.98   // 좌하단 보도블럭
   );
 
@@ -1203,8 +1212,8 @@ childTears=function() {
 //아이 엄마 등장
 wonderMom = function() {
     rectMode(CORNER);
-    let startFrame = 300; // 5초를 프레임으로 환산 (60fps 기준)
-    let endFrame = 600;
+    let startFrame = 150; // 5초를 프레임으로 환산 (60fps 기준)
+    let endFrame = 450;
     let xPosSpeed = 0;
     let finalXPos = 0; // 최종 x 위치를 저장할 변수
 
