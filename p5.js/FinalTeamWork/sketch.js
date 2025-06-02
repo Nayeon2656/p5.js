@@ -1125,6 +1125,7 @@ cryChild = function() {
   
     // 입
     push();
+    rectMode(CENTER);
     noFill();
     arc(0, canvasH * 0.02, canvasW * 0.03, canvasH * 0.02, PI,0);
     pop();
