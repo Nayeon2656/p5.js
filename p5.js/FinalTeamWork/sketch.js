@@ -946,7 +946,8 @@ scene4Back = function() {
   let finalXPos = 0; // 최종 x 위치를 저장할 변수
   let scene4_startFrame = 150; // 시작 프레임(초당 30 츠레임-5초)
   let scene4_endFrame = 450; // 종료 프레임(x축 이동 시간: 6초)
-
+  frameRate(30);
+  
   if (frameCount > scene4_startFrame && frameCount < scene4_endFrame) {
     xPosSpeed = (frameCount - scene4_startFrame) * 2;
     finalXPos = -xPosSpeed;
