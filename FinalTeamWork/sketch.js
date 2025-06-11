@@ -18,6 +18,8 @@ function preload() {
 }
 
 function setup() {
+  frameRate(30); // → 1초에 30프레임
+
   setCanvasSize();
   createCanvas(canvasW, canvasH);
   textAlign(CENTER, CENTER);
@@ -2034,7 +2036,7 @@ let wonderMom = function () {
   let startFrame = 150;
   let endFrame = 700;
 
-  // 이동 속도 계산
+  // 배경이 움직이는 것과 동일한 방식으로 속도 계산
   let xPosSpeed = 0;
   if (frameCount > startFrame && frameCount < endFrame) {
     xPosSpeed = (frameCount - startFrame) * 2;
@@ -2042,14 +2044,13 @@ let wonderMom = function () {
     xPosSpeed = (endFrame - startFrame) * 2;
   }
 
-  // 경찰서 기준 위치
-  let policeX = canvasW * 1.3;
-  let momX = policeX + canvasW * 0.45 - xPosSpeed;
+  // 경찰서 기준 위치 (scene4Back 내부와 맞춤)
+  let policeX = canvasW * 1.2;
+  let momX = policeX + canvasW * 0.45 - xPosSpeed;  // 이동 적용
 
   let currentTime = millis();
   let elapsedTime = currentTime - startTime;
 
-  // 엄마가 나타나는 구간
   if (elapsedTime > 0 && elapsedTime < 20000) {
     push();
     translate(momX, canvasH * 0.76);
