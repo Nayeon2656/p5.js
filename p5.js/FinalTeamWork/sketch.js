@@ -12,9 +12,9 @@ let x2 = -700;
 let img;
 
 function preload() {
-  img1 = loadImage('bg1.png');
-  img2 = loadImage('bg2.png');
-    img3 = loadImage('bg3.2.png');
+  img1 = loadImage('p5.js/FinalTeamWork/bg1.png');
+  img2 = loadImage('p5.js/FinalTeamWork/bg2.png');
+    img3 = loadImage('p5.js/FinalTeamWork/bg3.2.png');
   
 }
 
