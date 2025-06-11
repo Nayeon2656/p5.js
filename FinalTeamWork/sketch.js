@@ -12,8 +12,8 @@ let x2 = -700;
 let img;
 
 function preload() {
-  img1 = loadImage('bg1.png');
-  img2 = loadImage('bg2.png');
+  img1 = loadImage('bg2.png');
+  img2 = loadImage('bg3.1.png');
   img3 = loadImage('bg3.2.png');
 }
 
@@ -1088,7 +1088,7 @@ catchingArm=function(){
 scene3Back=function()
 {
   push();
-  image(img2, x2, 0, canvasW*2, canvasH);
+  image(img1, x2, 0, canvasW*2, canvasH);
 
   x2 += 1; // 매 프레임마다 x를 1씩 줄여서 왼쪽으로 이동
  
