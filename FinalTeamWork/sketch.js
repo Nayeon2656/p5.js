@@ -1,5 +1,5 @@
 let currentScene = 0;
-const sceneDurations = [7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 30000] ; // 씬별 시간 (ms)
+const sceneDurations = [7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 40000] ; // 씬별 시간 (ms)
 //[7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 30000]          - 씬 별 시간
 //[1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]            - 편집용 
 let canvasW, canvasH;
@@ -245,7 +245,7 @@ function drawScene2() {
     rectMode(CENTER);
     if (!umbrellaMove) { // 처음 한 번만 실행
         umbrellaX = canvasW * 0.21;
-        umbrellaY = canvasH * 0.2;
+        umbrellaY = canvasH * 0.25;
     }
 
     let currentTime = millis();
@@ -271,11 +271,10 @@ function drawScene2() {
       umbrellaVY += 0.03;
       umbrellaX += umbrellaVX;
       umbrellaY += umbrellaVY;
-
-      drawUmb(umbrellaX, umbrellaY); // 우산 그리기 (날아가는 위치에)
+      drawUmb(umbrellaX, umbrellaY);
     } else {
       // 3초 동안 우산을 들고 있는 상태
-      drawUmb(canvasW * 0.21, canvasH * 0.2); // 주인공 손 위치에 우산 그리기 (임시)
+      drawUmb(canvasW * 0.21, canvasH * 0.25); // 주인공 손 위치에 우산 그리기 (임시)
     }
       //우산 잡으러 가는 팔
       catchingArm();
@@ -863,7 +862,7 @@ useApp=function() {
       fill(255);
       stroke(230);
       strokeWeight(3);
-      rect(canvasW * 0.22, canvasH * 0.5, 17, canvasH*0.5, canvasH*0.1);
+      rect(canvasW * 0.22, canvasH * 0.5, canvasH*0.05, canvasH*0.5);
       fill(0);
       textSize(canvasH * 0.03);
       push();
@@ -1052,18 +1051,24 @@ walkingCharacter=function()
 };
 
 //날아가는 우산
-drawUmb=function(x,y){
+drawUmb = function(x, y) {
   push();
-  translate(x,y);
-  
-  fill(255,255,0);
+  translate(x, y);
+
+  // 비례로 크기 지정
+  let w = canvasW;
+  let h = canvasH;
+
+  fill(255, 255, 0);
   noStroke();
-  arc(0,0,150,100,PI,0);
+  arc(0, 0, w * 0.23, h * 0.3, PI, 0);  // 우산 천
+
   stroke(0);
-  strokeWeight(4);
-  line(0,0,0,120);
+  strokeWeight(h * 0.01);              // 손잡이 굵기도 비례
+  line(0, 0, 0, h * 0.2);              // 손잡이
   noFill();
-  arc(10,120,20,20,0,PI);
+  arc(w * 0.014, h * 0.2, w * 0.025, h * 0.03, 0, PI);  // 손잡이 끝
+
   pop();
 };
 
