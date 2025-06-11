@@ -1,5 +1,5 @@
 let currentScene = 0;
-const sceneDurations = [7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 40000] ; // 씬별 시간 (ms)
+const sceneDurations = [1000, 1000, 1000, 8000, 1000, 1000, 1000, 4000, 1000, 1000] ; // 씬별 시간 (ms)
 //[7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 30000]          - 씬 별 시간
 //[1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]            - 편집용 
 let canvasW, canvasH;
@@ -12,8 +12,8 @@ let x2 = -700;
 let img;
 
 function preload() {
-  img1 = loadImage('bg2.png');
-  img2 = loadImage('bg3.1.png');
+  img1 = loadImage('bg3.1.png');
+  img2 = loadImage('bg2.png');
   img3 = loadImage('bg3.2.png');
 }
 
@@ -773,12 +773,21 @@ let userBirthday = '';
 
 createUI=function() {
   push();
+
+  // 비례 크기 설정
+  let inputW = canvasW * 0.2;  // 예: 화면 너비의 15%
+  let inputH = canvasH * 0.09;  // 예: 높이 기준 크기
+
+  //입력창 생성
   birthInput = createInput('');
-  birthInput.position(canvasW * 0.4, canvasH * 0.52);
-  birthInput.size(120);
+  birthInput.position(canvasW * 0.35, canvasH * 0.52);
+  birthInput.size(inputW, inputH);  
   birthInput.attribute('placeholder', '생년월일 YYMMDD');//ai도움
+  
+  //버튼 생성
   showButton = createButton('운세보기');//ai도움
-  showButton.position(birthInput.x + birthInput.width + 20, birthInput.y);
+  showButton.position(birthInput.x + birthInput.width + canvasW * 0.02, birthInput.y);
+  showButton.size(inputW * 0.8, inputH);
   showButton.mousePressed(handleSubmit);
   pop();
 };
@@ -813,7 +822,7 @@ useApp=function() {
     // "오늘의 운세는" 텍스트
     noStroke();
     fill(0);
-    textSize(25);
+    textSize(canvasH * 0.05);
     push();
     translate(canvasW * 0.35, canvasH * 0.55);
     rotate(PI * 1.5);
@@ -840,7 +849,7 @@ useApp=function() {
     // "최악" 텍스트
     fill(255, 0, 0);
     noStroke();
-    textSize(40);
+    textSize(canvasH * 0.1);
     textStyle(BOLD);
     push();
     translate(canvasW * 0.7, canvasH * 0.5);
@@ -855,9 +864,9 @@ useApp=function() {
       strokeWeight(3);
       rect(canvasW * 0.22, canvasH * 0.5, 17, canvasH*0.5,20);
       fill(0);
-      textSize(15);
+      textSize(canvasH * 0.03);
       push();
-      translate(canvasW * 0.223, canvasH * 0.53);
+      translate(canvasW * 0.223, canvasH * 0.58);
       rotate(PI * 1.5);
       noStroke();
       text("송연:어디야?? 빨리와ㅜ", 0, 0);
@@ -1088,7 +1097,7 @@ catchingArm=function(){
 scene3Back=function()
 {
   push();
-  image(img1, x2, 0, canvasW*2, canvasH);
+  image(img2, x2, 0, canvasW*2, canvasH);
 
   x2 += 1; // 매 프레임마다 x를 1씩 줄여서 왼쪽으로 이동
  
@@ -2269,31 +2278,38 @@ scene5Back=function(){
     pop();
   }
 
-//umbrella
-findUmb=function(){
+// umbrella
+findUmb = function () {
   push();
-    rectMode(CORNER);
-    translate(canvasW * 0.57, canvasH * 0.69); // 위치 설정
-    scale(0.7); // 크기 축소
-    //손잡이
-    push();
-    fill(0);
-    rect(canvasW*0.08,canvasH*0.007,4,30);
-    pop();
-    // 우산천
-    push();
-    noStroke();
-    fill(255,255,0);
-    triangle(canvasW*0.07,canvasH*0.085,canvasW*0.065+28,canvasH*0.085,canvasW*0.065+14,canvasH*0.085+70);
-    pop();
+  rectMode(CORNER);
+
+  // 우산 전체 위치 (화면 크기에 비례)
+  translate(canvasW * 0.57, canvasH * 0.71); 
+  scale(0.7); // 전체 크기 축소
+
+  // 손잡이
   push();
-  fill(220);
-  strokeWeight(4.7);
-  arc(canvasW*0.095,canvasH*0.007,20,20,PI,0);
-  
+  fill(0);
+  rect(59, 20, 4, 30); // 절대 좌표
   pop();
 
+  // 우산천
+  push();
+  noStroke();
+  fill(255, 255, 0);
+  triangle(45, 40, 73, 40, 59, 110); // 절대 좌표
+  pop();
+
+  // 손잡이 끝 (아크)
+  push();
+  noFill();
+  strokeWeight(4.7);
+  arc(51, 17, 20, 20, PI, 0); // 절대 좌표
+  pop();
+
+  pop();
 };
+
 
 //아이
 drawChild = function() {
