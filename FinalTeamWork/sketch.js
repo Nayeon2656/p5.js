@@ -862,7 +862,7 @@ useApp=function() {
       fill(255);
       stroke(230);
       strokeWeight(3);
-      rect(canvasW * 0.22, canvasH * 0.5, 17, canvasH*0.5,20);
+      rect(canvasW * 0.22, canvasH * 0.5, 17, canvasH*0.5, canvasH*0.1);
       fill(0);
       textSize(canvasH * 0.03);
       push();
