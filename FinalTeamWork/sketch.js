@@ -120,6 +120,7 @@ function drawCreditOpening() {
   } else if (stage === 1) {
     let textfade = map(millis() - startTime, 6500, 7000, 255, 0, true);
     fill(255, textfade);
+    textSize(canvasH * 0.05); 
     text("이어지는 불운.\n그 끝에 찾아온 것은 기적이었다.", width / 2, height / 2);
   }
   pop();
@@ -815,7 +816,7 @@ useApp=function() {
   stroke(150);
   strokeWeight(8);
   fill(255);
-  rect(canvasW / 2, canvasH / 2, canvasW * 0.65, canvasH * 0.6, 20);
+  rect(canvasW / 2, canvasH / 2, canvasW * 0.65, canvasH * 0.6, canvasH * 0.05);
 
   if (showFortune) {
 
@@ -845,7 +846,7 @@ useApp=function() {
     stroke(0);
     strokeWeight(5);
     arc(canvasW / 1.74, canvasH / 2.46 + canvasW * 0.06, canvasW * 0.11, canvasW * 0.09, PI / 2, PI * 1.5);
-    
+
     // "최악" 텍스트
     fill(255, 0, 0);
     noStroke();
