@@ -1,5 +1,5 @@
 let currentScene = 0;
-const sceneDurations = [7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 40000] ; // 씬별 시간 (ms)
+const sceneDurations = [7000, 3000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 45000] ; // 씬별 시간 (ms)
 //[7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 40000]          - 씬 별 시간
 //[1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]            - 편집용 
 let canvasW, canvasH;
@@ -10,7 +10,7 @@ let raindrops = [];
 let x = -50;
 let x2 = -700;
 let img;
-
+ 
 function preload() {
   img1 = loadImage('bg3.1.png');
   img2 = loadImage('bg2.png');
@@ -651,11 +651,11 @@ drawSilhouettes=function() {
 
 //배경 움직이는 함수
 backShaking=function() {
-  let shakeAmount = 0.6; // 흔들리는 강도 (픽셀 단위)
+  let shakeAmount = canvasH * 0.001; // 흔들리는 강도 (픽셀 단위)
 
   let shakeY = random(-shakeAmount, shakeAmount); // 세로 방향 흔들림
   translate(0, shakeY); // 캔버스 이동
-};
+}; 
 
 //1_1 함수
 //주인공
@@ -980,18 +980,6 @@ walkingCharacter=function()
   fill(255);
   arc(canvasW * 0.163, canvasH * 0.32, canvasW*0.02, canvasH*0.03,PI/2,PI*3/2);
   pop();
-
-  //입 
-  push();
-  fill(220);
-  ellipse(canvasW * 0.205, canvasH * 0.35, canvasW * 0.01875, canvasH * 0.00555);
-  pop();
-
-  //눈
-  push();
-  fill(0);
-  ellipse(canvasW * 0.2, canvasH * 0.3, canvasW * 0.006, canvasH * 0.02);//오른른쪽
-  pop();
   
   //팔
   push();
@@ -1021,6 +1009,18 @@ walkingCharacter=function()
   let elapsedTime = currentTime - startTime;  // 경과 시간 계산
 
   if (elapsedTime > 0 && elapsedTime < 2300){// 우산 들고 있을 때
+    //입 
+    push();
+    fill(220);
+    ellipse(canvasW * 0.205, canvasH * 0.35, canvasW * 0.01875, canvasH * 0.00555);
+    pop();
+
+    //눈
+    push();
+    fill(0);
+    ellipse(canvasW * 0.2, canvasH * 0.3, canvasW * 0.006, canvasH * 0.02);//오른쪽
+    pop();
+
     // 오른쪽 다리
     let rightLegX = canvasW * 0.16 + canvasH * speed * (frameCount % 20); // 20프레임마다 반복
     line(canvasW * 0.16, canvasH * 0.6, rightLegX, canvasH * 0.7);
@@ -1034,6 +1034,20 @@ walkingCharacter=function()
     ellipse(rightLegX + range * sin(frameCount * 0.1), canvasH * 0.7, canvasW * 0.025, canvasW * 0.015);
     ellipse( leftLegX - range * sin(frameCount * 0.1), canvasH * 0.7, canvasW * 0.025, canvasW * 0.015);
   } else {
+    //입 
+    push();
+    strokeWeight(1);
+    noFill();
+    ellipse(canvasW * 0.205, canvasH * 0.35, canvasW * 0.01875, canvasH * 0.00555);
+    pop();
+
+    //눈
+    push();
+    strokeWeight(1);
+    noFill();
+    ellipse(canvasW * 0.2, canvasH * 0.3, canvasW * 0.006, canvasH * 0.02);//오른쪽
+    pop();
+
     // 오른쪽 다리
     let rightLegX = canvasW * 0.16; // 20프레임마다 반복
     line(canvasW * 0.16, canvasH * 0.6, rightLegX, canvasH * 0.7);
@@ -1399,22 +1413,22 @@ function mousePressed() {
 scene4Back = function() {
   push(); // 좌표계 저장
 
-  let xPosSpeed = 0;
-  let finalXPos = 0;
+  let speedPerFrame = canvasW * 0.003;
   let scene4_startFrame = 150;
   let scene4_endFrame = 450;
-  frameRate(30);
 
   if (frameCount > scene4_startFrame && frameCount < scene4_endFrame) {
-    xPosSpeed = (frameCount - scene4_startFrame) * 2;
-    finalXPos = -xPosSpeed;
+    // 매 프레임마다 누적 이동
+    scene4OffsetX = (frameCount - scene4_startFrame) * speedPerFrame;
   } else if (frameCount >= scene4_endFrame) {
-    finalXPos = -(scene4_endFrame - scene4_startFrame) * 2;
+    // 멈춘 이후에는 마지막 이동값 고정 사용
+    scene4OffsetX = (scene4_endFrame - scene4_startFrame) * speedPerFrame;
   } else {
-    finalXPos = 0;
+    scene4OffsetX = 0;
   }
 
-  translate(finalXPos, 0); // 전체 씬을 왼쪽으로 이동
+  // 이동 적용
+  translate(-scene4OffsetX, 0);
 
   // 배경 이미지 반복해서 이어붙이기
   for (let i = 0; i < 4; i++) {
@@ -2014,89 +2028,103 @@ childTears=function() {
     }
   };
 
+let xPosSpeed = 0;
 //아이 엄마 등장
-wonderMom = function() {
-    rectMode(CORNER);
-    let startFrame = 150; // 5초를 프레임으로 환산 (60fps 기준)
-    let endFrame = 700;
-    let xPosSpeed = 0;
-    let finalXPos = 0; // 최종 x 위치를 저장할 변수
+let wonderMom = function () {
+  let startFrame = 150;
+  let endFrame = 700;
 
-    if (frameCount > startFrame && frameCount < endFrame) {
-      xPosSpeed = (frameCount - startFrame) * 2;
-      finalXPos = -xPosSpeed;
+  // 이동 속도 계산
+  let xPosSpeed = 0;
+  if (frameCount > startFrame && frameCount < endFrame) {
+    xPosSpeed = (frameCount - startFrame) * 2;
+  } else if (frameCount >= endFrame) {
+    xPosSpeed = (endFrame - startFrame) * 2;
+  }
+
+  // 경찰서 기준 위치
+  let policeX = canvasW * 1.3;
+  let momX = policeX + canvasW * 0.45 - xPosSpeed;
+
+  let currentTime = millis();
+  let elapsedTime = currentTime - startTime;
+
+  // 엄마가 나타나는 구간
+  if (elapsedTime > 0 && elapsedTime < 20000) {
+    push();
+    translate(momX, canvasH * 0.76);
+    scale(1.27);
+
+    if (elapsedTime < 14000) {
+      drawMomFinding();
+    } else {
+      drawMomRelax();
     }
-    else if(frameCount >= endFrame) {
-        xPosSpeed = endFrame;
-        finalXPos = -xPosSpeed; // 최종 위치 고정
-    }
-  let currentTime = millis(); // 현재 시간 가져오기
-  let elapsedTime = currentTime - startTime;  // 경과 시간 계산
 
-  if (elapsedTime > 0 && elapsedTime < 14000){
-    push();
-    translate(canvasW * 1.8 - xPosSpeed , canvasH * 0.76); // 엄마 위치 설정 (파출소 옆)
-    scale(1.27); // 엄마 크기 설정 (아이보다 약간 크게)
-
-    // 머리카락
-    push();
-    fill(0); // 검정색 머리
-    ellipse(0, -canvasH * 0.03, canvasW * 0.1, canvasH * 0.16); // 머리 스타일
-    ellipse(0, -canvasH * 0.1, canvasW * 0.06, canvasH * 0.06);
     pop();
+  }
+};
 
-    // 얼굴
-    ellipse(0, 0, canvasW * 0.09, canvasH * 0.13);
+function drawMomFinding() {
+  // 머리카락
+  push();
+  fill(0);
+  ellipse(0, -canvasH * 0.03, canvasW * 0.1, canvasH * 0.16);
+  ellipse(0, -canvasH * 0.1, canvasW * 0.06, canvasH * 0.06);
+  pop();
 
-    // 눈
-    fill(0);
-    ellipse(-canvasW * 0.022, -canvasH * 0.02, canvasW * 0.009, canvasH * 0.013); // 오른쪽 눈
-    ellipse(canvasW * 0.022, -canvasH * 0.02, canvasW * 0.009, canvasH * 0.013); // 왼쪽 눈
+  // 얼굴
+  ellipse(0, 0, canvasW * 0.09, canvasH * 0.13);
 
-    // 입
-    push();
-    noFill();
-    stroke(0);
-    arc(0, canvasH * 0.02, canvasW * 0.035, canvasH * 0.02, PI, 0);
-    pop();
+  // 눈
+  fill(0);
+  ellipse(-canvasW * 0.022, -canvasH * 0.02, canvasW * 0.009, canvasH * 0.013);
+  ellipse(canvasW * 0.022, -canvasH * 0.02, canvasW * 0.009, canvasH * 0.013);
 
-    // 몸통
-    push();
-    rectMode(CORNER);
-    fill(255);
-    rect(-canvasW * 0.038, canvasH * 0.06, canvasW * 0.075, canvasH * 0.2, 5);
-    pop();
+  // 입
+  push();
+  noFill();
+  stroke(0);
+  arc(0, canvasH * 0.02, canvasW * 0.035, canvasH * 0.02, PI, 0);
+  pop();
 
-    // 팔
-    stroke(0);
-    line(-canvasW * 0.04, canvasH * 0.1, -canvasW * 0.09, canvasH * 0.05); // 오른쪽 팔
-    line(canvasW * 0.04, canvasH * 0.1, canvasW * 0.09, canvasH * 0.05); // 왼쪽 팔
+  // 몸통
+  push();
+  rectMode(CORNER);
+  fill(255);
+  rect(-canvasW * 0.038, canvasH * 0.06, canvasW * 0.075, canvasH * 0.2, 5);
+  pop();
 
-    // 손
-    push();
-    fill(255);
-    ellipse(-canvasW * 0.09, canvasH * 0.05, canvasW * 0.012, canvasW * 0.012); // 오른쪽 손
-    ellipse(canvasW * 0.09, canvasH * 0.05, canvasW * 0.012, canvasW * 0.012); // 왼쪽 손
-    pop();
+  // 팔
+  stroke(0);
+  line(-canvasW * 0.04, canvasH * 0.1, -canvasW * 0.09, canvasH * 0.05);
+  line(canvasW * 0.04, canvasH * 0.1, canvasW * 0.09, canvasH * 0.05);
 
-    // 다리
-    push();
-    strokeWeight(4);
-    line(-canvasW * 0.022, canvasH * 0.26, -canvasW * 0.022, canvasH * 0.31); // 오른쪽 다리
-    line(canvasW * 0.022, canvasH * 0.26, canvasW * 0.022, canvasH * 0.31); // 왼쪽 다리
-    pop();
-  
-    // 발
-    push();
-    fill(255);
-    ellipse(-canvasW * 0.022, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009); // 오른쪽 발
-    ellipse(canvasW * 0.022, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009); // 왼쪽 발
-    pop();
-  } else if(elapsedTime > 14000 && elapsedTime < 20000) {
-    push();
-    translate(canvasW * 1.8 - xPosSpeed , canvasH * 0.76); // 엄마 위치 설정 (파출소 옆)
-    scale(1.27); // 엄마 크기 설정 (아이보다 약간 크게)
+  // 손
+  push();
+  fill(255);
+  ellipse(-canvasW * 0.09, canvasH * 0.05, canvasW * 0.012, canvasW * 0.012);
+  ellipse(canvasW * 0.09, canvasH * 0.05, canvasW * 0.012, canvasW * 0.012);
+  pop();
 
+  // 다리
+  push();
+  strokeWeight(4);
+  line(-canvasW * 0.022, canvasH * 0.26, -canvasW * 0.022, canvasH * 0.31);
+  line(canvasW * 0.022, canvasH * 0.26, canvasW * 0.022, canvasH * 0.31);
+  pop();
+
+  // 발
+  push();
+  fill(255);
+  ellipse(-canvasW * 0.022, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009);
+  ellipse(canvasW * 0.022, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009);
+  pop();
+}
+
+
+function drawMomRelax() {
+  push();
     // 얼굴
     push();
     fill(255);
@@ -2157,10 +2185,7 @@ wonderMom = function() {
     ellipse(leftLegX, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009);
     ellipse(rightLegX, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009);  
     pop();
-  }
-
- pop();
-};
+}
 
 //5 함수
 //배경
@@ -2512,7 +2537,7 @@ let credits = [
     "조윤서: 배경 디자인",
     " ",
     "코드",
-    "김나연: 등장인물관련 코드 작성, 코드 합본 작성성",
+    "김나연: 등장인물관련 코드 작성, 코드 합본 작성",
     "이송연: 소품 관련 코드 작성",
     "조윤서: 배경 코드 작성, 크레딧 및 오프닝 연출",
     "AI활용",
