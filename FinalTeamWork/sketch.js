@@ -1,5 +1,5 @@
 let currentScene = 0;
-const sceneDurations = [7000, 3000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 45000] ; // 씬별 시간 (ms)
+const sceneDurations = [7000, 3000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 50000] ; // 씬별 시간 (ms)
 //[7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 40000]          - 씬 별 시간
 //[1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]            - 편집용 
 let canvasW, canvasH;
@@ -751,7 +751,7 @@ phone=function()
   rect(canvasW*3.7,canvasH*5,canvasW*0.65,canvasH*0.6,20 * (canvasW / 1600),20 * (canvasW / 1600),20 * (canvasW / 1600),20 * (canvasW / 1600));
 };
 
-//배경 줌인
+//배경 줌인-GPT
 zoomIn=function() {
   let zoomLevel = 1; // 초기 줌 레벨
   let targetZoomLevel = 5; // 목표 줌 레벨 (몇 단계까지 확대할지)
@@ -2542,7 +2542,10 @@ let credits = [
     "이송연: 소품 관련 코드 작성",
     "조윤서: 배경 코드 작성, 크레딧 및 오프닝 연출",
     "AI활용",
-    ": ",
+    ": 나뉘어진 코드 합성하는 방법(기본 틀), setCanvasSize(), ",
+    " startSceneTimer(), drawCreditEnding(), drawCreditEnding(),",
+    " backShaking(), zoomIn(), createUI(), handleSubmit(),",
+    " drawWiperArm(), goSmall(), wonderMom() ",
     " ",
     "-Flow-",
     " ",
