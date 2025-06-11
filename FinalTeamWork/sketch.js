@@ -1,6 +1,6 @@
 let currentScene = 0;
-const sceneDurations = [7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 40000] ; // 씬별 시간 (ms)
-//[7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 30000]          - 씬 별 시간
+const sceneDurations = [1000, 1000, 1000, 1000, 1000, 1000, 1000, 5000, 1000, 1000] ; // 씬별 시간 (ms)
+//[7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 40000]          - 씬 별 시간
 //[1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]            - 편집용 
 let canvasW, canvasH;
 let stage; // 오프닝 단계
@@ -1793,32 +1793,6 @@ walkPoliceCharacter=function()
   pop();
 };
 
-//우산 들고 있음
-haveUmb=function(){
-  push();
-    rectMode(CORNER);
-    translate(canvasW * 0.29, canvasH * 0.985); // 위치 설정
-    scale(0.7); // 크기 축소
-    //손잡이
-    push();
-    fill(0);
-    rect(canvasW*0.08,canvasH*0.007,4,30);
-    pop();
-    // 우산천
-    push();
-    noStroke();
-    fill(150);
-    triangle(canvasW*0.07,canvasH*0.085,canvasW*0.065+28,canvasH*0.085,canvasW*0.065+14,canvasH*0.085+70);
-    pop();
-  push();
-  fill(220);
-  strokeWeight(4.7);
-  arc(canvasW*0.095,canvasH*0.007,20,20,PI,0);
-  
-  pop();
-
-};
-
 //아이 울고 있음
 cryChild = function() {
   let currentTime = millis(); // 현재 시간 가져오기
@@ -2261,28 +2235,43 @@ scene5Back=function(){
     //오른쪽 팔
     line(canvasW * 0.327, canvasH * 0.48, // 몸통 오른쪽 옆 시작점 (아까와 동일)
          canvasW * 0.297, canvasH * 0.45);  // 팔꿈치(?) 꺾이는 지점 (몸통에 가깝게, 살짝 아래로)
-    let wiperAngle = map(sin(frameCount * 0.05), -1, 1, -PI*3/4, -PI/2); // 와이퍼 각도 (좌우 45도 범위)
-  drawWiperArm(canvasW * 0.297, canvasH * 0.45, wiperAngle, canvasW * 0.05); // 팔꿈치 중심, 각도, 팔 길이
   
+    //팔 회전-gpt
+    let shoulderX = canvasW * 0.327;
+    let shoulderY = canvasH * 0.48;
+
+    let elbowX = canvasW * 0.297;
+    let elbowY = canvasH * 0.45;
+
+    // 상박: 고정된 선
+    line(shoulderX, shoulderY, elbowX, elbowY);
+
+    // 마우스 x좌표 기준 좌우로 흔들리는 각도 계산
+     let dx = mouseX - elbowX;
+    let maxDX = canvasW * 0.1;
+    dx = constrain(dx, -maxDX, maxDX);
+
+    // 좌우로 흔들리는 각도 (-30° ~ +30°)
+    let forearmAngle = map(dx, -maxDX, maxDX, -PI*3/4, -PI/2);
+
+    // 하박(손): 팔꿈치를 기준으로 회전하는 선
+    drawWiperArm(elbowX, elbowY, forearmAngle, canvasW * 0.07);
+
     // 왼쪽 팔 (캐릭터 기준 오른쪽) - 몸통 옆에서 나와서 아래로 꺾임
     line(canvasW * 0.417, canvasH * 0.48, // 몸통 오른쪽 옆 시작점 (아까와 동일)
-         canvasW * 0.43, canvasH * 0.55);  // 팔꿈치(?) 꺾이는 지점 (몸통에 가깝게, 살짝 아래로)
+        canvasW * 0.43, canvasH * 0.55);  // 팔꿈치(?) 꺾이는 지점 (몸통에 가깝게, 살짝 아래로)
   };
 
-//주인공 손 회전
-  function drawWiperArm(x, y, angle, length) {
-    push();
-    translate(x, y); // 중심점을 (x, y)로 이동
-    rotate(angle); // 지정된 각도만큼 회전
-    line(0, 0, length, 0); // (0, 0)부터 지정된 길이만큼 선 그리기
-  
-    // 팔 끝에 동그라미 손 추가
-    let handX = length; // 팔 길이만큼 떨어진 위치에 손 그리기
-    let handY = 0;
-    circle(handX, handY, canvasW * 0.015); // 손 그리기
-  
-    pop();
-  }
+
+//주인공 손 회전-gpt
+function drawWiperArm(x, y, angle, length) {
+  push();
+  translate(x, y);
+  rotate(angle);
+  line(0, 0, length, 0);
+  circle(length, 0, canvasW * 0.015);
+  pop();
+}
 
 // umbrella
 findUmb = function () {
@@ -2296,21 +2285,21 @@ findUmb = function () {
   // 손잡이
   push();
   fill(0);
-  rect(59, 20, 4, 30); // 절대 좌표
+  rect(canvasW * 0.08, canvasH * 0.04, canvasW * 0.003, canvasW * 0.04); // 절대 좌표
   pop();
 
   // 우산천
   push();
   noStroke();
   fill(255, 255, 0);
-  triangle(45, 40, 73, 40, 59, 110); // 절대 좌표
-  pop();
+  triangle(canvasW * 0.06, canvasH * 0.07, canvasW * 0.1, canvasH * 0.07, canvasW * 0.08, canvasH * 0.25); // 절대 좌표
+  pop(); 
 
   // 손잡이 끝 (아크)
   push();
   noFill();
   strokeWeight(4.7);
-  arc(51, 17, 20, 20, PI, 0); // 절대 좌표
+  arc(canvasW * 0.072, canvasH * 0.04, canvasW * 0.02, canvasW * 0.02, PI, 0); // 절대 좌표
   pop();
 
   pop();
