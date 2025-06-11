@@ -14,8 +14,7 @@ let img;
 function preload() {
   img1 = loadImage('bg1.png');
   img2 = loadImage('bg2.png');
-    img3 = loadImage('bg3.2.png');
-  
+  img3 = loadImage('bg3.2.png');
 }
 
 function setup() {
