@@ -1,5 +1,5 @@
 let currentScene = 0;
-const sceneDurations = [7000, 3000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 50000] ; // 씬별 시간 (ms)
+const sceneDurations = [7000, 3000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 55000] ; // 씬별 시간 (ms)
 //[7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 40000]          - 씬 별 시간
 //[1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]            - 편집용 
 let canvasW, canvasH;
@@ -12,9 +12,10 @@ let x2 = -700;
 let img;
  
 function preload() {
-  img1 = loadImage('bg3.1.png');
+  img1 = loadImage('bg1.png');
   img2 = loadImage('bg2.png');
   img3 = loadImage('bg3.2.png');
+  img4 = loadImage('bgf.jpg');
 }
 
 function setup() {
@@ -364,7 +365,7 @@ function drawScene5() {  //아이와 엄마가 멀어지면서 아이가 손에 
 function drawScene5_1() {
     
     background(220); // 배경색 설정
-    
+    image(img4, 0, 0,canvasW, canvasH);
     //활짝 웃는 주인공
     push();
     scale(3); // 확대해서 그리기
@@ -928,7 +929,7 @@ sheShaking=function() {
   let shakeX = random(0, shakeAmount); // 세로 방향 흔들림
   translate(shakeX, 0); // 캔버스 이동
 };
-
+ 
 //걷다가 우산이 날아가 멈추는 주인공
 walkingCharacter=function()
 {
@@ -2555,7 +2556,7 @@ let credits = [
     "김나연",
     "이번 프로젝트를 통해 한 학기 동안 쌓아온 지식과 기술을",
     "실제로 구현하며 깊이 있게 이해할 수 있었습니다.",
-    "팀원들과 함께 직접 부딪히고 고민하며 완성한 결과물이기에 더웃 뜻깊고",
+    "팀원들과 함께 직접 부딪히고 고민하며 완성한 결과물이기에 더욱욱 뜻깊고",
     "이번 경험이 앞으로의 학습에도 큰 동기부여가 될 것입니다.",
     " ",
     "이송연",
