@@ -1,9 +1,22 @@
 let currentScene = 0;
-const sceneDurations = [7000, 3000, 7000, 4000, 6000, 22000, 4000, 3500, 10000]; // 씬별 시간 (ms)
-
+const sceneDurations = [7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 40000] ; // 씬별 시간 (ms)
+//[7000, 2000, 2000, 8000, 4000, 8000, 20000, 5000, 4000, 30000]          - 씬 별 시간
+//[1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]            - 편집용 
 let canvasW, canvasH;
 let stage; // 오프닝 단계
 let startTime; // 오프닝 시작 시간
+let subwaySceneNumber = 3; //지하철 씬 번호
+let raindrops = [];
+let x = -50;
+let x2 = -700;
+let img;
+
+function preload() {
+  img1 = loadImage('bg1.png');
+  img2 = loadImage('bg2.png');
+    img3 = loadImage('bg3.2.png');
+  
+}
 
 function setup() {
   setCanvasSize();
@@ -11,6 +24,18 @@ function setup() {
   textAlign(CENTER, CENTER);
   stage = 0; // 오프닝 초기 단계
   startTime = millis(); // 시작 시간 기록
+
+  for (let i = 0; i < 200; i++) {
+    raindrops.push({
+      x: random(canvasW),
+      y: random(-canvasH, 0),
+      speed: random(2, 6)
+    });
+   }
+  
+  //Scene4.버스 좌표 초기화
+  busX = canvasW * 0.2;
+  busY = canvasH * 0.6;
 
   startSceneTimer();
 }
@@ -39,28 +64,39 @@ function draw() {
     case 0: drawCreditOpening(); break;
     case 1: drawScene1(); break;
     case 2: drawScene1_1(); break;
-    case 3: drawScene2(); break;
-    case 4: drawScene3(); break;
-    case 5: drawScene4(); break;
-    case 6: drawScene5(); break;
-    case 7: drawScene5_1(); break;
-    case 8: drawCreditEnding(); break;
+    case 3: drawScene1_2(); break;
+    case 4: drawScene2(); break;
+    case 5: drawScene3(); break;
+    case 6: drawScene4(); break;
+    case 7: drawScene5(); break;
+    case 8: drawScene5_1(); break;
+    case 9: drawCreditEnding();  break;
   }
+  return;
 }
 
 function startSceneTimer() {
     setTimeout(() => {
       currentScene = (currentScene + 1) % sceneDurations.length;
   
-      // 씬 시작 시 초기화
-      if (currentScene === 0) { // 오프닝 씬 시작 시
+      // 크레딧 씬 시작 시 초기화
+      if (currentScene === 0) { // 오프닝 씬 시작 시시
         stage = 0;
       } else if (currentScene === 8) { // 크레딧 씬 시작 시
         creditY = canvasH;
       }
+
+      // 지하철 씬 시작 시 초기화
+      if (currentScene === subwaySceneNumber) { 
+        createUI(); // UI 요소 생성
+      } else {
+         // 다른 씬으로 넘어가면 UI 요소 숨기기
+         if(birthInput) birthInput.hide();
+         if(showButton) showButton.hide();
+      }
   
       startTime = millis(); // 각 씬 시작 시 startTime 초기화
-      frameCount = 0; // 🌟 각 씬 시작 시 frameCount 초기화! 🌟
+      frameCount = 0; // 각 씬 시작 시 frameCount 초기화!
   
       startSceneTimer();
     }, sceneDurations[currentScene]);
@@ -70,6 +106,7 @@ function startSceneTimer() {
 
 //Scene1_Opening Credit
 function drawCreditOpening() {
+  push();
   background(0);
 
   if (stage === 0) {
@@ -86,166 +123,162 @@ function drawCreditOpening() {
     fill(255, textfade);
     text("이어지는 불운.\n그 끝에 찾아온 것은 기적이었다.", width / 2, height / 2);
   }
+  pop();
 }
 
 //Scene2_Scene1.지하철 타고 있는 주인공 등장
 function drawScene1() {
-    background(220);
-    fill(255);
-    //기본 배경
-      // 지하철 게이트 (왼쪽)
-      quad(
-      0, canvasH * 0.1,  // 좌상단
-      canvasW * 0.18, canvasH * 0.1,  // 우상단
-      canvasW * 0.18, canvasH * 1,  // 우하단
-      0, canvasH * 1);   // 좌하단
+  push();
+  backShaking();
+  background(220);
+
+  //배경
+  scene1Back();
+  
+  //주변 사람들
+  drawSilhouettes();
     
-      // 지하철 게이트 창문 (왼쪽)
-      quad(
-      0, canvasH * 0.15,  // 좌상
-      canvasW * 0.15, canvasH * 0.15,  // 우상단
-      canvasW * 0.15, canvasH * 0.6,  // 우하단
-      0, canvasH * 0.6);   // 좌하단
-    
-      // 지하철 게이트 (오른쪽)
-      quad(
-      canvasW * 0.19, canvasH * 0.1,  // 좌상단
-      canvasW * 0.41, canvasH * 0.1,  // 우상단
-      canvasW * 0.41, canvasH * 1,  // 우하단
-      canvasW * 0.19, canvasH * 1);   // 좌하단
-    
-      // 지하철 게이트 창문 (오른쪽)
-      quad(
-      canvasW * 0.22, canvasH * 0.15,  // 좌상단
-      canvasW * 0.38, canvasH * 0.15,  // 우상단
-      canvasW * 0.38, canvasH * 0.6,  // 우하단
-      canvasW * 0.22, canvasH * 0.6);   // 좌하단
-    
-      // 지하철 창문
-      quad( 
-      canvasW * 0.5, canvasH * 0.1,  // 좌상단
-      canvasW * 0.85, canvasH * 0.1,  // 우상단
-      canvasW * 0.85, canvasH * 0.7,  // 우하단
-      canvasW * 0.5, canvasH * 0.7  );   // 좌하단
-    
-      //주변 사람들
-      drawSilhouettes();
-      
-      push();
-      noFill();
-      // 지하철 손잡이 1 (기둥)
-      quad(
-      canvasW * 0.595, canvasH * 0.1,  // 좌상단
-      canvasW * 0.605, canvasH * 0.1,  // 우상단
-      canvasW * 0.605, canvasH * 0.2,  // 우하단
-      canvasW * 0.595, canvasH * 0.2);   // 좌하단
-    
-       // 지하철 손잡이 1
-      triangle(canvasW * 0.56 , canvasH * 0.28,
-            canvasW * 0.64 , canvasH * 0.28,
-            canvasW * 0.6 , canvasH * 0.17);
-    
-      // 지하철 손잡이 2 (기둥)
-      quad(
-      canvasW * 0.745, canvasH * 0.1,  // 좌상단
-      canvasW * 0.755, canvasH * 0.1,  // 우상단
-      canvasW * 0.755, canvasH * 0.2,  // 우하단
-      canvasW * 0.745, canvasH * 0.2);   // 좌하단
-    
-      // 지하철 손잡이 2
-      triangle(canvasW * 0.71 , canvasH * 0.28,
-            canvasW * 0.79 , canvasH * 0.28,
-            canvasW * 0.75 , canvasH * 0.17);
-      pop();
-    
-    // 주인공
-    push();
-    drawCharacter();
-    pop();
-    
-    // 지하철 라인
-      quad(
-      canvasW * 0.92, 0,  // 좌상단
-      canvasW * 0.94, 0,  // 우상단
-      canvasW * 0.94, canvasH * 1,  // 우하단
-      canvasW * 0.92, canvasH * 1);   // 좌하단
+  //손잡이
+  handRing();
+  
+  // 주인공
+  push();
+  drawCharacter();
+  pop();
+
+  pop();
 }
 
-//Scene3_Scene1-1.지하철에서 오늘의 운세를 확인하는 주인공
+//Scene3_Scene1-1.지하철에서 핸드폰을 보고 있는 주인공
 function drawScene1_1() {
+  push();
+    //줌인
+    zoomIn();
     background(220);
   
-    //기본 화면
-    // 지하철 배경 함수
+    // 지하철 배경
     // 왼쪽 부분 좌석 사각형 
-     quad(
-      canvasW * 0.01, canvasH * 0.01,  // 좌상단
-      canvasW * 0.15, canvasH * 0.01,  // 우상단
-      canvasW * 0.15, canvasH * 0.9,  // 우하단
-      canvasW * 0.01, canvasH * 0.9   // 좌하단
-    );
+    push();
+    stroke(100);
+    strokeWeight(10);
+    fill(180);
+    quad(
+     canvasW * 0, canvasH * 0.01, 
+     canvasW * 0.16, canvasH * 0.01,
+     canvasW * 0.16, canvasH * 0.9,
+     canvasW * 0, canvasH * 0.9  );
   
-    //주변 사람들
+    fill(255);
+    noStroke();
+
+    quad(
+     canvasW * 0.001, canvasH * 0.01, 
+     canvasW * 0.15, canvasH * 0.01,
+     canvasW * 0.15, canvasH * 0.9,
+     canvasW * 0.001, canvasH * 0.9  );
+  
+    strokeWeight(1);
     drawSilhouettes1();
-    
+  
     // 지하철 역 안내 전광판
-    quad( 
-    canvasW * 0.35, canvasH * 0.05,  // 좌상단
-      canvasW * 0.8, canvasH * 0.05,  // 우상단
-      canvasW * 0.8, canvasH * 0.30,  // 우하단
-      canvasW * 0.35, canvasH * 0.30   // 좌하단
-    );
+    fill(150);
+    noStroke();
+    fill(180); // 연한 회색
+    rect(canvasW * 0.34, canvasH * 0.05, canvasW * 0.47, canvasH * 0.3, 20);
+
+    // 안쪽 회색 박스 (윗부분)
+    fill(150); // 중간 회색
+    rect(canvasW * 0.37, canvasH * 0.08, canvasW * 0.39, canvasH * 0.11, 10);
+
+    // 아래 검정 바 (하단)
+    fill(0); // 검정
+    rect(canvasW * 0.34, canvasH * 0.27, canvasW * 0.47, canvasH * 0.07, 5);
+
+    // 흰색 테두리 네모 (아래 바 안쪽)
+    noFill();
+    stroke(255);
+    strokeWeight(1);
+    rect(canvasW * 0.39, canvasH * 0.3, canvasW * 0.37, canvasH * 0.03);
+    pop();
     
     // 주인공
     drawCharacter1();
-  
-    //function1-지하철 배경(3초)
-    //zoomBack();
-        //배경-만원 지하철을 위에서 바라보는 배경(전체를 넓게 비추고 점차 주인공 핸드폰으로 좁혀가는 배경)
-    
-    
-    //function2-좁혀진 배경 안에서 핸드폰에서 운세 어플을 켬(5초)
-    //openApp(); 
-        //사물-핸드폰 화면이 어플로 변환됨
-        //인물-주인공의 손가락이 어플을 누르는 움직임
-    
-    //function3-이름과 생년월일을 입력받기
-    //getInfo();
-        //사물-사용자 정보를 입력받음(이름, 생년월일-빠르게 입력 가능하도록 040220과 같은 방식으로)
-    
-    //function4-스마트폰 화면에 오늘의 운세를 '나쁨'으로 띄움+친구한테 "지각이야! 어디야?"라고 카톡이 옴
-    //useApp();
-    
-    //function5-주인공의 표정이 어두움
-    //beUpset();
-       //인물-울상이 되는 주인공의 표정
+  pop();
 }
 
-//Scene4.Scene2.걷다가 우산이 날라가는 주인공
+//Scene4.Scene1.2. 확대된 핸드폰 오늘의 운세 화면 속 인터랙션
+function drawScene1_2() {
+  background(220);
+
+  //핸드폰 사용
+  push();
+  useApp();
+  pop();
+
+  //핸드폰 쓰는 손
+  usePhoneHand();
+}
+
+//우산 날아가기 위한 전역 변수 선언
+let umbrellaX = canvasW * 0.19;
+let umbrellaY = canvasH * 0.21;//우산위치
+let umbrellaVX=0, umbrellaVY=0;//우산의 속도
+let umbrellaMove=false;//아직 안움직임
+let umbrellaFlew=false;//우산이 이미 날라갔는지?
+
+//Scene5.Scene2.걷다가 우산이 날라가는 주인공
 function drawScene2() {
     background(220);
+    image(img1, x,-0.24*canvasH,canvasW*2, canvasH*1);
+    x -= 1; // 매 프레임마다 x를 1씩 줄여서 왼쪽으로 이동
+
     //배경-보도블록
     scene2Back();
     
     //캐릭터
+    push();
+    sheShaking();
     walkingCharacter();
+    pop();
     
-    //function1-비오는 배경에 주인공이 우산을 들고 서있음
-    //rainFall();
-       //배경- 비가 내리고 바람이 강한 바람이 부는 배경
-    
-    //function2-우산이 날아감
-    //flyUmb();
-       //인물- 우산을 잡으러 쫓아감
-       //사물- 우산 날아감
-    
-    //function3-배경이 움직이며 주인공 우산이 아이에게 근처에떨어짐
-    //fallUmb();
-       //배경- 배경이 좌에서 우로 움직임
-       //인물- 아이 등장
-       //사물- 포물선을 그리며 아이 근처에
-    //getUmb();
-       //우산을 아이에게로 가져오는 마우스 인터랙션
+    //우산이 날아감
+    rectMode(CENTER);
+    if (!umbrellaMove) { // 처음 한 번만 실행
+        umbrellaX = canvasW * 0.21;
+        umbrellaY = canvasH * 0.2;
+    }
+
+    let currentTime = millis();
+    let elapsedTime = currentTime - startTime;
+
+    if (elapsedTime > 2000) { // 2초 후 우산 날리기 시작
+      umbrellaMove = true;
+    }
+
+    push(); // 좌표계 저장 (우산, 팔, 좌석에만 적용)
+
+    if (umbrellaMove) {
+      // 우산이 날아가는 중
+      // 초기 속도 설정 (처음 한 번만)
+      if (!umbrellaFlew) {
+        umbrellaVX = random(2, 4);
+        umbrellaVY = random(-3, -1);
+        umbrellaFlew = true;
+      }
+
+      // 매 프레임 속도/위치 업데이트
+      umbrellaVX += 0.05;
+      umbrellaVY += 0.03;
+      umbrellaX += umbrellaVX;
+      umbrellaY += umbrellaVY;
+
+      drawUmb(umbrellaX, umbrellaY); // 우산 그리기 (날아가는 위치에)
+    } else {
+      // 3초 동안 우산을 들고 있는 상태
+      drawUmb(canvasW * 0.21, canvasH * 0.2); // 주인공 손 위치에 우산 그리기 (임시)
+    }
+      //우산 잡으러 가는 팔
+      catchingArm();
 }
 
 //Scene5.Scene3.버스에서 졸다가 깜짝 놀라 하차 벨을 누르는 주인공
@@ -256,19 +289,17 @@ function drawScene3() {
     //function1-버스에서 졸고있는 주인공
     sleepInBus();
        //배경-버스에서 주인공 자리를 주로 잡고 창문으로 바깥 배경들이 지나감
-       //인물-꾸벅꾸벅 졸고 있음
     
-    //function2-깜짝 놀라 일어남
-    //wakeUp();
-       //배경-function1과 같은 배경
-       //인물- 깜짝 놀라 일어남
-    
+    //function2-급하게 하차벨을 누르는 주인공
+    raiseArm();
+
     //function3-급하게 하차벨을 누르는 마우스 인터랙션
-    //pressBell();
-       //배경-버스 벨 부분 창틀
-       //인물-하차벨을 누르는 손
-       //사물-마우스 인터랙션과 이로 인한 색상 변화
+    pressBell();
   }
+
+//버스 움직임 위한 전역 변수 선언
+let busX,busY;
+let busMoving=true;
 
 //Scene6.Scene4.버스 정류장에서 우는 아이를 달래고 경찰서로 데려가는 주인공, 엄마를 발견하고 달려가는 아이
 function drawScene4() {
@@ -276,7 +307,7 @@ function drawScene4() {
     //배경
     scene4Back();
 
-    //function1-버스정류장에서 버스가 지나가고 주인공과 아이가 나타남
+    //버스정류장에서 버스가 지나가고 주인공과 아이가 나타남
     //주인공
     push();
     scale(0.8);
@@ -286,32 +317,22 @@ function drawScene4() {
     cryChild(); // 아이 함수 호출
     pop();
     
-    childTears();//아이 눈물 함수 호출
+    childTears(); //아이 눈물 함수 호출
     wonderMom();//아이 엄마 함수 호출
     pop();
-    
-    //moveBus();
-       //배경- 버스정류장
-       //인물- 아이와 주인공
-       //사물- 버스 움직임(오른쪽에서 왼쪽으로)
 
-    //function2-주인공이 무릎을 굽혀 울고있는 아이와 눈높이를 맞춤
-    //meetChild();
-       //배경- function1과 같음
-       //인물- 주인공이 아이 키에 맞춰 무릎을 굽혀 달래줌
+    // 버스 이동 및 그리기
+    if (busMoving) {
+      drawBus(busX,busY);
+      busX -= canvasW*0.02; // 이동 속도
 
-    //function3-배경을 움직이며 파출소로 향함+파출소와 아이 엄마가 나타남
-    //moveBack();
-       //배경- 좌에서 우로 움직임
-       //인물- 아이와 주인공의 팔과 다리가 움직임+파출소 근처에 엄마가 나타남
-
-    //function4-파출소 앞에서 아이가 아이 엄마에게 안김
-    //hugMom();
-       //배경- 파출소 앞 
-       //인물- 엄마가 아이를 안아줌
+      if (busX < -canvasW) {
+        busMoving = false; 
+      }
+    }
   }
 
-//Scene7.Scene5.아이와 엄마가 멀어지고 아이의 손에서 자신의 우산을 발견하는 주인공공
+//Scene7.Scene5.아이와 엄마가 멀어지고 아이의 손에서 자신의 우산을 발견하는 주인공
 function drawScene5() {  //아이와 엄마가 멀어지면서 아이가 손에 들고 있는 우산을 발견함
     background(220);
   
@@ -326,7 +347,9 @@ function drawScene5() {  //아이와 엄마가 멀어지면서 아이가 손에 
     // 엄마
     goSmall(childMom, frameCount, 1, 0.6, 0, canvasH * 0.1);
   
-    //findUmb(); - 우산이 빛남
+    push();
+    goSmall(findUmb, frameCount, 1, 0.6, 0, canvasH * 0.1); //멀어지는 우산산
+    pop();
 
     //주인공
     push();
@@ -336,7 +359,7 @@ function drawScene5() {  //아이와 엄마가 멀어지면서 아이가 손에 
        //사물-우산이 빛남
 }
 
-//Scene8.Scene5.1.자신의 불운이 누군가에게 도움이 되었음에 행복을 느끼는 주인공공
+//Scene8.Scene5.1.자신의 불운이 누군가에게 도움이 되었음에 행복을 느끼는 주인공
 function drawScene5_1() {
     
     background(220); // 배경색 설정
@@ -351,12 +374,13 @@ function drawScene5_1() {
 
 //Scene9.Ending Credit
 function drawCreditEnding() {
+  push();
     background(0);
     fill(255);
     textAlign(CENTER, CENTER);
     textSize(22);
   
-    // yStart 변수를 매 프레임마다 초기화하면 안 되니까, 전역 변수로 빼고 관리할게
+    // yStart 변수를 매 프레임마다 초기화하면 안 됨. 전역 변수로 빼고 관리
     if (typeof creditY === 'undefined') {
       creditY = canvasH; // 처음 시작 위치
     }
@@ -366,9 +390,151 @@ function drawCreditEnding() {
     }
   
     creditY -= 1.5; // 크레딧이 위로 올라가게
+  pop();
   }
 
 //1 함수
+//배경
+scene1Back=function(){
+  push();
+  noStroke();
+  fill(200);
+  
+  //기본 배경
+    // 지하철 게이트 (왼쪽)
+    quad(
+    0, canvasH * 0.1,  // 좌상단
+    canvasW * 0.18, canvasH * 0.1,  // 우상단
+    canvasW * 0.18, canvasH * 1,  // 우하단
+    0, canvasH * 1);   // 좌하단
+  
+    // 지하철 게이트 (오른쪽)
+    quad(
+    canvasW * 0.18, canvasH * 0.1,  // 좌상단
+    canvasW * 0.41, canvasH * 0.1,  // 우상단
+    canvasW * 0.41, canvasH * 1,  // 우하단
+    canvasW * 0.18, canvasH * 1);   // 좌하단
+
+    fill(255);
+    strokeWeight(3);
+    stroke(100);
+  
+    // 지하철 게이트 창문 (왼쪽)
+    quad(
+    0, canvasH * 0.15,  // 좌상
+    canvasW * 0.15, canvasH * 0.15,  // 우상단
+    canvasW * 0.15, canvasH * 0.55,  // 우하단
+    0, canvasH * 0.55);   // 좌하단
+  
+    
+    // 지하철 게이트 창문 (오른쪽)
+    quad(
+    canvasW * 0.22, canvasH * 0.15,  // 좌상단
+    canvasW * 0.38, canvasH * 0.15,  // 우상단
+    canvasW * 0.38, canvasH * 0.55,  // 우하단
+    canvasW * 0.22, canvasH * 0.55);   // 좌하단
+  
+
+    // 지하철 창문
+    fill(100);
+    noStroke();
+    strokeWeight(1);
+    quad( 
+    canvasW * 0.49, canvasH * 0.08,  // 좌상단
+    canvasW * 0.95, canvasH * 0.08,  // 우상단
+    canvasW * 0.95, canvasH * 0.72,  // 우하단
+    canvasW * 0.49, canvasH * 0.72  );   // 좌하단
+  
+    fill(255);
+    quad( 
+    canvasW * 0.5, canvasH * 0.1,  // 좌상단
+    canvasW * 0.94, canvasH * 0.1,  // 우상단
+    canvasW * 0.94, canvasH * 0.7,  // 우하단
+    canvasW * 0.5, canvasH * 0.7  );   // 좌하단
+  
+    fill(255);
+    stroke(0);
+
+    noStroke();
+    fill(150, 150, 150, 200);
+  
+    quad( canvasW * 0.42, canvasH * 0.775, 
+    canvasW * 1, canvasH * 0.775, 
+    canvasW * 1, canvasH * 0.86, 
+    canvasW * 0.42, canvasH * 0.86);  // 지하철 아랫라인
+  
+    fill(150, 150, 150, 100);
+  
+    quad( canvasW * 0.42, canvasH * 0.885, 
+    canvasW * 1, canvasH * 0.885, 
+    canvasW * 1, canvasH * 0.93, 
+    canvasW * 0.42, canvasH * 0.93);  // 지하철 아랫라인
+  
+    stroke(255);
+    strokeWeight(3);
+  
+    line(canvasW * 0.177, canvasH * 0.1,  // 좌상단
+    canvasW * 0.177, canvasH * 1);
+
+    strokeWeight(5);
+    stroke(100);
+  
+    line(canvasW * 0.16, canvasH * 0.65,  // 열차 손잡이
+    canvasW * 0.16, canvasH * 0.8);
+  
+    line(canvasW * 0.195, canvasH * 0.65,
+    canvasW * 0.195, canvasH * 0.8);
+  
+    pop();
+};
+
+//손잡이
+handRing=function(){
+      push();
+    noFill();
+    strokeWeight(3);
+  
+        // 지하철 손잡이 1
+    triangle(canvasW * 0.54 , canvasH * 0.28,
+          canvasW * 0.62 , canvasH * 0.28,
+          canvasW * 0.58 , canvasH * 0.17);
+  
+    // 지하철 손잡이 2
+    triangle(canvasW * 0.68 , canvasH * 0.28,
+          canvasW * 0.76 , canvasH * 0.28,
+          canvasW * 0.72 , canvasH * 0.17);
+  
+    // 지하철 손잡이 3
+    triangle(canvasW * 0.82 , canvasH * 0.28,
+          canvasW * 0.9 , canvasH * 0.28,
+          canvasW * 0.86 , canvasH * 0.17);
+    
+    strokeWeight(1);
+    fill(0);
+  
+      // 지하철 손잡이 1 (기둥)
+    quad(
+    canvasW * 0.573, canvasH * 0.1,  // 좌상단
+    canvasW * 0.588, canvasH * 0.1,  // 우상단
+    canvasW * 0.588, canvasH * 0.2,  // 우하단
+    canvasW * 0.573, canvasH * 0.2);   // 좌하단
+  
+    // 지하철 손잡이 2 (기둥)
+    quad(
+    canvasW * 0.713, canvasH * 0.1,  // 좌상단
+    canvasW * 0.727, canvasH * 0.1,  // 우상단
+    canvasW * 0.727, canvasH * 0.2,  // 우하단
+    canvasW * 0.713, canvasH * 0.2);   // 좌하단
+  
+      // 지하철 손잡이 3 (기둥)
+    quad(
+    canvasW * 0.853, canvasH * 0.1,  // 좌상단
+    canvasW * 0.868, canvasH * 0.1,  // 우상단
+    canvasW * 0.868, canvasH * 0.2,  // 우하단
+    canvasW * 0.853, canvasH * 0.2);   // 좌하단
+    pop();
+};
+
 //주인공 등장
 drawCharacter=function()
 {
@@ -403,19 +569,17 @@ drawCharacter=function()
   
   //몸
   push();
-  fill(255);
   rect(canvasW * 0.672, canvasH * 0.6, canvasW*0.09, canvasH * 0.2, 20 * (canvasW / 1600), 20 * (canvasW / 1600), 20 * (canvasW / 1600), 20 * (canvasW / 1600));
+  
   rect(canvasW * 0.672, canvasH * 0.65, canvasW*0.09, canvasH * 0.1); //긴 몸의 아랫부분을 자르기 위해 추가한 부분
+  fill(255);
   noStroke();
   rect(canvasW * 0.672, canvasH * 0.63, canvasW*0.088, canvasH * 0.1);
   pop();
   
   //얼굴
-  push();
-  fill(255);
   ellipse(canvasW * 0.67, canvasH * 0.4, canvasW * 0.1, canvasH * 0.2 );
-  pop();
-
+  
   //앞머리
   push();
   fill(0);
@@ -432,10 +596,16 @@ drawCharacter=function()
   ellipse(canvasW * 0.65, canvasH * 0.4, canvasW * 0.006, canvasH * 0.02);//오른쪽
   ellipse(canvasW * 0.68, canvasH * 0.4, canvasW * 0.006, canvasH * 0.02);//왼쪽
   pop();
-  
+
+  //핸드폰
+  push();
+  stroke(150);
+  fill(150);
+  rect(canvasW * 0.667, canvasH * 0.63, canvasW*0.03, canvasH * 0.09, canvasW*0.001);
+  pop();
+
   //팔
   push();
-  fill(255);
   // 오른쪽 팔 (캐릭터 기준 왼쪽) - 몸통 옆에서 나와서 위로 꺾임
   line(canvasW * 0.627, canvasH * 0.53, // 몸통 왼쪽 옆 시작점 (아까와 동일)
        canvasW * 0.61, canvasH * 0.6);  // 팔꿈치(?) 꺾이는 지점 (몸통에 가깝게, 살짝 아래로)
@@ -453,19 +623,39 @@ drawCharacter=function()
   // 왼쪽 손
   circle(canvasW * 0.685, canvasH * 0.65, canvasW * 0.015); // 팔 끝에 동그라미 손
   pop();
+
 };
+
 //주변 사람들
 drawSilhouettes=function() {
-  push();
-  fill(200); // 실루엣 색
+ push();
+ 
   noStroke();
-  //오른쪽 사람
-  ellipse(canvasW * 0.79, canvasH * 0.35, canvasW * 0.1, canvasH * 0.2 );
-  rect(canvasW * 0.747, canvasH * 0.449, canvasW*0.09, canvasH * 0.25);
-  //왼쪽 사람
-  ellipse(canvasW * 0.555, canvasH * 0.35, canvasW * 0.1, canvasH * 0.2 );
-  rect(canvasW * 0.505, canvasH * 0.449, canvasW*0.1, canvasH * 0.25);
-  pop();
+  fill(130);
+
+  //사람 2
+  ellipse(canvasW * 0.79, canvasH * 0.4, canvasW * 0.1, canvasH * 0.2 );
+  rect(canvasW * 0.747, canvasH * 0.5, canvasW*0.08, canvasH * 0.2);
+    
+  fill(200);
+    
+  //왼쪽 사람 1
+  ellipse(canvasW * 0.575, canvasH * 0.35, canvasW * 0.1, canvasH * 0.2 );
+  rect(canvasW * 0.53, canvasH * 0.449, canvasW*0.09, canvasH * 0.25);
+    
+   //왼쪽 사람 3
+  ellipse(canvasW * 0.87, canvasH * 0.35, canvasW * 0.1, canvasH * 0.2 );
+  rect(canvasW * 0.82, canvasH * 0.449, canvasW*0.09, canvasH * 0.25);
+      
+ pop();
+};
+
+//배경 움직이는 함수
+backShaking=function() {
+  let shakeAmount = 0.6; // 흔들리는 강도 (픽셀 단위)
+
+  let shakeY = random(-shakeAmount, shakeAmount); // 세로 방향 흔들림
+  translate(0, shakeY); // 캔버스 이동
 };
 
 //1_1 함수
@@ -558,39 +748,132 @@ phone=function()
   strokeWeight(8);
   fill(255);
   rect(canvasW*3.7,canvasH*5,canvasW*0.65,canvasH*0.6,20 * (canvasW / 1600),20 * (canvasW / 1600),20 * (canvasW / 1600),20 * (canvasW / 1600));
-  noStroke();
-  fill(255,0,0);
-  ellipse(canvasW*3.7,canvasH*5,canvasW*0.22,canvasW*0.22);
-  //눈
-  fill(0);
-  circle(canvasW*3.67,canvasH*4.95,canvasW*0.06);
-  circle(canvasW*3.67,canvasH*5.09,canvasW*0.06);
-  fill(255);
-    circle(canvasW*3.6665,canvasH*4.95,canvasW*0.04);
-  circle(canvasW*3.6665,canvasH*5.09,canvasW*0.04);
-  //입
-  noFill();
-  stroke(0);
-  strokeWeight(5);
-  arc(canvasW*3.77, canvasH*4.92 + canvasW*0.06, canvasW*0.11, canvasW*0.09, PI/2, PI*1.5);
-  fill(255, 0, 0);
-  noStroke();
-  textSize(40);
-  textStyle(BOLD);
+};
 
-  push();  // 좌표계 저장
+//배경 줌인
+zoomIn=function() {
+  let zoomLevel = 1; // 초기 줌 레벨
+  let targetZoomLevel = 5; // 목표 줌 레벨 (몇 단계까지 확대할지)
+  let zoomSpeed = 1; // 줌 속도 (클수록 빠름)
+  let zoomDelayFrames = 30; // 줌 시작 전 지연 프레임
 
-  translate(canvasW * 3.9, canvasH * 5.05);  // 텍스트 기준점으로 이동 (텍스트 위치에 따라 수정)
-  rotate(PI*1.5);  
-  text("최악", 0, 0);  
-  pop();  // 원래 좌표계 복구
-  fill(0);
-  noStroke();
-  textSize(25);
+  if (frameCount > zoomDelayFrames && zoomLevel < targetZoomLevel) {
+    zoomLevel += zoomSpeed; // 줌 레벨 증가
+    translate(-canvasW*0.5,-canvasH*0.6);
+  }
+  zoomLevel = min(zoomLevel, targetZoomLevel); // 최대 줌 레벨 제한
+  scale(zoomLevel); // 캔버스 변환 적용
+};
+
+//1_2 함수
+//정보 입력
+let birthInput, showButton;
+let showFortune = false;
+let showMessage = false;
+let userBirthday = ''; 
+
+createUI=function() {
   push();
-  translate(canvasW*3.5,canvasH*5.2);
-  rotate(PI*1.5);
-  text("오늘의 운세는",0,0);
+  birthInput = createInput('');
+  birthInput.position(canvasW * 0.4, canvasH * 0.52);
+  birthInput.size(120);
+  birthInput.attribute('placeholder', '생년월일 YYMMDD');//ai도움
+  showButton = createButton('운세보기');//ai도움
+  showButton.position(birthInput.x + birthInput.width + 20, birthInput.y);
+  showButton.mousePressed(handleSubmit);
+  pop();
+};
+
+//"운세보기" 버튼을 클릭했을 때 실행되는 함수
+handleSubmit=function() {
+  userBirthday = birthInput.value();
+  birthInput.hide();
+  showButton.hide();
+  showFortune = true;
+
+  setTimeout(() => {
+    showMessage = true;
+  }, 1000);
+};
+
+//핸드폰 사용 전체 플로우
+useApp=function() {
+  push();
+
+  background(220);
+  rectMode(CENTER);
+
+  // 핸드폰 기본 입력 화면
+  stroke(150);
+  strokeWeight(8);
+  fill(255);
+  rect(canvasW / 2, canvasH / 2, canvasW * 0.65, canvasH * 0.6, 20);
+
+  if (showFortune) {
+
+    // "오늘의 운세는" 텍스트
+    noStroke();
+    fill(0);
+    textSize(25);
+    push();
+    translate(canvasW * 0.35, canvasH * 0.55);
+    rotate(PI * 1.5);
+    text("오늘의 운세는", 0, 0);
+    pop();
+
+    // 찡그린 운세 그림
+    // 얼굴
+    fill(255, 0, 0);
+    ellipse(canvasW / 2, canvasH / 2, canvasW * 0.22);
+    // 눈
+    fill(0);
+    circle(canvasW / 2.08, canvasH / 1.7, canvasW * 0.06);
+    circle(canvasW / 2.08, canvasH / 2.3, canvasW * 0.06);
+    fill(255);
+    circle(canvasW / 2.08, canvasH / 2.3, canvasW * 0.04);
+    circle(canvasW / 2.08, canvasH / 1.7, canvasW * 0.04);
+    // 입
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    arc(canvasW / 1.74, canvasH / 2.46 + canvasW * 0.06, canvasW * 0.11, canvasW * 0.09, PI / 2, PI * 1.5);
+    
+    // "최악" 텍스트
+    fill(255, 0, 0);
+    noStroke();
+    textSize(40);
+    textStyle(BOLD);
+    push();
+    translate(canvasW * 0.7, canvasH * 0.5);
+    rotate(PI * 1.5);
+    text("최악", 0, 0);
+    pop();
+
+    //메시지(1second later)
+    if (showMessage) {
+      fill(255);
+      stroke(230);
+      strokeWeight(3);
+      rect(canvasW * 0.22, canvasH * 0.5, 17, canvasH*0.5,20);
+      fill(0);
+      textSize(15);
+      push();
+      translate(canvasW * 0.223, canvasH * 0.53);
+      rotate(PI * 1.5);
+      noStroke();
+      text("송연:어디야?? 빨리와ㅜ", 0, 0);
+      pop();
+    }
+  }
+  pop();
+};
+
+//핸드폰 사용하는 손
+usePhoneHand=function() {
+  push();
+  fill(255);
+  ellipse(canvasW * 0.5, canvasH * 0.95, canvasW * 0.3);
+  ellipse(canvasW * 0.5, canvasH * 0.05, canvasW * 0.3);
   pop();
 };
 
@@ -603,9 +886,40 @@ scene2Back=function()
     canvasW * 2, canvasH * 0.71,  // 우상단
     canvasW * 2, canvasH * 0.76,  // 우하단
     canvasW * -1, canvasH * 0.76);   // 좌하단
+  
+  fill(100);
+  noStroke();
+  quad(
+    canvasW * -1, canvasH * 0.71,  // 좌상단
+    canvasW * 2, canvasH * 0.71,   // 우상단
+    canvasW * 2, canvasH * 0.76,   // 우하단
+    canvasW * -1, canvasH * 0.76); // 좌하단
+
+  // 빗방울
+  stroke(0);
+  strokeWeight(2);
+  for (let drop of raindrops) {
+    // 빗방울이 보도블럭에 닿기 전까지만 그림
+    if (drop.y + 20 < canvasH * 0.71) {
+      line(drop.x, drop.y, drop.x, drop.y + 20);
+      drop.y += drop.speed;
+    } else {
+      // 보도블럭에 닿으면 초기화
+      drop.y = random(-50, 0);
+      drop.x = random(canvasW);
+    }
+  }
 };
 
-//걷고 있는 주인공
+//주인공이 바람에 움직이는 함수
+sheShaking=function() {
+  let shakeAmount = 0.6; // 흔들리는 강도 (픽셀 단위)
+
+  let shakeX = random(0, shakeAmount); // 세로 방향 흔들림
+  translate(shakeX, 0); // 캔버스 이동
+};
+
+//걷다가 우산이 날아가 멈추는 주인공
 walkingCharacter=function()
 {
   rectMode(CENTER);
@@ -688,39 +1002,85 @@ walkingCharacter=function()
   fill(200);
   rect(canvasW * 0.172, canvasH * 0.5, canvasW*0.09, canvasH * 0.2, 20 * (canvasW / 1600), 20 * (canvasW / 1600), 20 * (canvasW / 1600), 20 * (canvasW / 1600));
   pop();
-
-  // 오른쪽 팔
-  push();
-  fill(255);
-  line(canvasW * 0.177, canvasH * 0.43, // 몸통 왼쪽 옆 시작점
-      canvasW * 0.16, canvasH * 0.5);  // 팔꿈치
-  line(canvasW * 0.16, canvasH * 0.5, // 팔꿈치
-      canvasW * 0.21, canvasH * 0.47);  // 손 끝나는 지점
-
-  // 오른쪽 손
-  circle(canvasW * 0.21, canvasH * 0.47, canvasW * 0.015); // 팔 끝에 동그라미 손
-
-  pop();
   
-  let speed = 0.001; // 움직이는 속도 조절
-  let range = 0.03; // 다리가 움직이는 범위 조절
+  let speed = 0.002; // 움직이는 속도 조절
+  let range = 0.01; // 다리가 움직이는 범위 조절
 
   push();
   fill(255);
   strokeWeight(3);
+  let currentTime = millis(); // 현재 시간 가져오기
+  let elapsedTime = currentTime - startTime;  // 경과 시간 계산
+
+  if (elapsedTime > 0 && elapsedTime < 2300){// 우산 들고 있을 때
+    // 오른쪽 다리
+    let rightLegX = canvasW * 0.16 + canvasH * speed * (frameCount % 20); // 20프레임마다 반복
+    line(canvasW * 0.16, canvasH * 0.6, rightLegX, canvasH * 0.7);
+
+    // 왼쪽 다리
+    let leftLegX = canvasW * 0.18 - canvasH * speed * (frameCount % 20); // 20프레임마다 반복
+    line(canvasW * 0.18, canvasH * 0.6, leftLegX, canvasH * 0.7);
+
+    //발
+    strokeWeight(1);
+    ellipse(rightLegX + range * sin(frameCount * 0.1), canvasH * 0.7, canvasW * 0.025, canvasW * 0.015);
+    ellipse( leftLegX - range * sin(frameCount * 0.1), canvasH * 0.7, canvasW * 0.025, canvasW * 0.015);
+  } else {
+    // 오른쪽 다리
+    let rightLegX = canvasW * 0.16; // 20프레임마다 반복
+    line(canvasW * 0.16, canvasH * 0.6, rightLegX, canvasH * 0.7);
+
+    // 왼쪽 다리
+    let leftLegX = canvasW * 0.18; // 20프레임마다 반복
+    line(canvasW * 0.18, canvasH * 0.6, leftLegX, canvasH * 0.7);
+
+    //발
+    strokeWeight(1);
+    ellipse(rightLegX + range, canvasH * 0.7, canvasW * 0.025, canvasW * 0.015);
+    ellipse( leftLegX - range, canvasH * 0.7, canvasW * 0.025, canvasW * 0.015);
+  }
+    pop();
+};
+
+//날아가는 우산
+drawUmb=function(x,y){
+  push();
+  translate(x,y);
   
-  // 오른쪽 다리
-  let rightLegX = canvasW * 0.16 + canvasH * speed * (frameCount % 60); // 60프레임마다 반복
-  line(canvasW * 0.16, canvasH * 0.6, rightLegX, canvasH * 0.7);
+  fill(255,255,0);
+  noStroke();
+  arc(0,0,150,100,PI,0);
+  stroke(0);
+  strokeWeight(4);
+  line(0,0,0,120);
+  noFill();
+  arc(10,120,20,20,0,PI);
+  pop();
+};
 
-  // 왼쪽 다리
-  let leftLegX = canvasW * 0.18 - canvasH * speed * (frameCount % 60); // 60프레임마다 반복
-  line(canvasW * 0.18, canvasH * 0.6, leftLegX, canvasH * 0.7);
+//우산 잡는 손
+catchingArm=function(){
+  // 오른쪽 팔
+  push();
+  fill(255);
+  let currentTime = millis(); // 현재 시간 가져오기
+  let elapsedTime = currentTime - startTime;  // 경과 시간 계산
 
-  //발
-  strokeWeight(1);
-  ellipse(rightLegX + range * sin(frameCount * 0.1), canvasH * 0.7, canvasW * 0.025, canvasW * 0.015);
-  ellipse( leftLegX - range * sin(frameCount * 0.1), canvasH * 0.7, canvasW * 0.025, canvasW * 0.015);
+  if (elapsedTime > 0 && elapsedTime < 2300){// 우산 들고 있을 때
+    line(canvasW * 0.177, canvasH * 0.43, // 몸통 왼쪽 옆 시작점
+        canvasW * 0.16, canvasH * 0.5);  // 팔꿈치
+    line(canvasW * 0.16, canvasH * 0.5, // 팔꿈치
+        canvasW * 0.21, canvasH * 0.47);  // 손 끝나는 지점
+  // 오른쪽 손
+    circle(canvasW * 0.21, canvasH * 0.47, canvasW * 0.015); // 팔 끝에 동그라미 손
+  } else if (elapsedTime > 2000) {  //팔을 들어 올려 벨 누름
+    line(canvasW * 0.177, canvasH * 0.43, // 몸통 왼쪽 옆 시작점
+        canvasW * 0.2, canvasH * 0.46);  // 팔꿈치
+    line(canvasW * 0.2, canvasH * 0.46, // 팔꿈치
+        canvasW * 0.24, canvasH * 0.4);  // 손 끝나는 지점
+  // 오른쪽 손
+    circle(canvasW * 0.24, canvasH * 0.4, canvasW * 0.015); // 팔 끝에 동그라미 손
+  }
   pop();
 };
 
@@ -728,80 +1088,103 @@ walkingCharacter=function()
 //배경
 scene3Back=function()
 {
-    push();
-     fill(225);
-     line(canvasW * 0.1, canvasH * -0.11,
-          canvasW * 1, canvasH * 0.05); // 구도 선 1 (위부터)
-     line(canvasW * 0, canvasH * 0.03,
-          canvasW * 1, canvasH * 0.23); // 구도 선 2
-    line(canvasW * 0, canvasH * 0.05,
-         canvasW * 1, canvasH * 0.25); // 구도 선 3
-     line(canvasW * 0, canvasH * 0.95,
-          canvasW * 1, canvasH * 0.53); // 구도 선 4
-  
-    quad(
-    canvasW * 0, canvasH * 0.12,  // 좌상단
-    canvasW * 0.37, canvasH * 0.2,  // 우상단
-    canvasW * 0.37, canvasH * 0.8,  // 우하단
-    canvasW * 0, canvasH * 0.95);   // 좌하단 창문 1
-  
-    quad(
-    canvasW * 0.45, canvasH * 0.21,  // 좌상단
-    canvasW * 0.75, canvasH * 0.27,  // 우상단
-    canvasW * 0.75, canvasH * 0.64,  // 우하단
-    canvasW * 0.45, canvasH * 0.76);  // 좌하단 창문 2
-  
-    quad(
-    canvasW * 0.8, canvasH * 0.28,  // 좌상단
-    canvasW * 0.98, canvasH * 0.315,  // 우상단
-    canvasW * 0.98, canvasH * 0.52,  // 우하단
-    canvasW * 0.8, canvasH * 0.6);   // 좌하단 창문 3
+  push();
+  image(img2, x2, 0, canvasW*2, canvasH);
 
-   quad(
+  x2 += 1; // 매 프레임마다 x를 1씩 줄여서 왼쪽으로 이동
+ 
+  fill(245); 
+
+  noStroke();
+  quad(
+    canvasW * 0, canvasH * 0,  // 좌상단
+    canvasW * 1, canvasH * 0,  // 우상단
+    canvasW * 1, canvasH * 0.33,  // 우하단
+    canvasW * 0, canvasH * 0.15);   // 좌하단 창문 3
+  
+
+  quad(
+    canvasW * 0, canvasH * 0,  // 좌상단
+    canvasW * 1, canvasH * 0,  // 우상단
+    canvasW *1, canvasH * 0.23,  // 우하단
+    canvasW * 0, canvasH * 0.03);   // 좌하단 창문 3
+  
+  quad(
+    canvasW * 0.38, canvasH * 0.15,  // 좌상단
+    canvasW * 0.45, canvasH * 0.15,  // 우상단
+    canvasW * 0.45, canvasH * 0.8,  // 우하단
+    canvasW * 0.38, canvasH * 0.8);   // 좌하단 창문 3
+
+  quad(
+    canvasW * 0.75, canvasH * 0.25,  // 좌상단
+    canvasW * 0.8, canvasH * 0.25,  // 우상단
+    canvasW * 0.8, canvasH * 0.8,  // 우하단
+    canvasW * 0.75, canvasH * 0.8);   // 좌하단 창문 3
+
+  quad(
+    canvasW * 0, canvasH * 0.9,  // 좌상단
+    canvasW * 1, canvasH * 0.5,  // 우상단
+    canvasW * 1, canvasH * 1,  // 우하단
+    canvasW * 0, canvasH * 1);   // 좌하단 창문 3
+  
+  stroke(0);
+  fill(0);
+  line(canvasW * 0.1, canvasH * -0.11,
+      canvasW * 1, canvasH * 0.05); // 구도 선 1 (위부터)
+  line(canvasW * 0, canvasH * 0.03,
+      canvasW * 1, canvasH * 0.23); // 구도 선 2
+  line(canvasW * 0, canvasH * 0.05,
+      canvasW * 1, canvasH * 0.25); // 구도 선 3
+  line(canvasW * 0, canvasH * 0.95,
+      canvasW * 1, canvasH * 0.53); // 구도 선 4
+  
+  fill(200);
+  quad(
+    canvasW * 0, canvasH * 0.97,  // 좌상단
+    canvasW * 1, canvasH * 0.55,  // 우상단
+    canvasW *1, canvasH * 1,  // 우하단
+    canvasW * 0, canvasH * 1);   // 좌하단 창문 3
+  
+  fill(255);
+  
+  noStroke();
+  fill(150);
+  quad(
     canvasW * 0.9, canvasH * 0.49,  // 좌상단
     canvasW * 1, canvasH * 0.49,  // 우상단
     canvasW * 1, canvasH * 0.73,  // 우하단
     canvasW * 0.9, canvasH * 0.73);   // 좌하단. 맨 뒤 좌석
   
-    quad(
-    canvasW * 0.9, canvasH * 0.73,  // 좌상단
-    canvasW * 1, canvasH * 0.73,  // 우상단
+  quad(
+    canvasW * 0.9, canvasH * 0.735,  // 좌상단
+    canvasW * 1, canvasH * 0.735,  // 우상단
     canvasW * 1, canvasH * 0.78,  // 우하단
     canvasW * 0.9, canvasH * 0.78);   // 좌하단. 맨뒤 좌석 쿠션
   
-    quad(
+  quad(
     canvasW * 0.55, canvasH * 0.58,  // 좌상단
     canvasW * 0.74, canvasH * 0.58,  // 우상단
     canvasW * 0.74, canvasH * 0.86,  // 우하단
     canvasW * 0.55, canvasH * 0.86);   // 좌하단. 주인공 좌석
-    quad(
-    canvasW * 0.74, canvasH * 0.58,  // 좌상단
+  quad(
+    canvasW * 0.745, canvasH * 0.58,  // 좌상단
     canvasW * 0.93, canvasH * 0.58,  // 우상단
     canvasW * 0.93, canvasH * 0.86,  // 우하단
-    canvasW * 0.74, canvasH * 0.86);   // 좌하단. 주인공 좌석 옆
+    canvasW * 0.745, canvasH * 0.86);   // 좌하단. 주인공 좌석 옆
   
-    quad(
-    canvasW * 0.55, canvasH * 0.86,  // 좌상단
-    canvasW * 0.93, canvasH * 0.86,  // 우상단
+  quad(
+    canvasW * 0.55, canvasH * 0.865,  // 좌상단
+    canvasW * 0.93, canvasH * 0.865,  // 우상단
     canvasW * 0.89, canvasH * 0.93,  // 우하단
     canvasW * 0.55, canvasH * 0.93);   // 좌하단. 주인공 좌석 쿠션
+  stroke(0);
   
-    sleepCharacter();//주인공 
   
-    quad(
-    canvasW * 0.25, canvasH * 0.75,  // 좌상단
-    canvasW * 0.44, canvasH * 0.75,  // 우상단
-    canvasW * 0.44, canvasH * 0.99,  // 우하단
-    canvasW * 0.25, canvasH * 0.99);   // 좌하단. 맨 앞쪽 왼쪽 좌석
-     quad(
-    canvasW * 0.44, canvasH * 0.75,  // 좌상단
-    canvasW * 0.63, canvasH * 0.75,  // 우상단
-    canvasW * 0.63, canvasH * 0.99,  // 우하단
-    canvasW * 0.44, canvasH * 0.99);   // 좌하단. 맨 앞쪽 오른쪽 좌석
- pop();
+  sleepCharacter();//주인공 
+  pop();
 };
 
-//졸고 있는 주인공
+//졸고 있는 주인공 기본 틀
 sleepCharacter=function()
 {
   push();
@@ -851,27 +1234,18 @@ sleepCharacter=function()
   
   //눈 - sleepEyeBus에서 움직임 부여
   
-  //팔
+  //팔 - raiseArm에서 움직임 부여
+  // 왼쪽 팔
   push();
   fill(255);
-  // 오른쪽 팔
-  line(canvasW * 0.607, canvasH * 0.69, // 몸통 왼쪽 옆 시작점
-       canvasW * 0.59, canvasH * 0.76);  // 팔꿈치
-  line(canvasW * 0.59, canvasH * 0.76, // 팔꿈치
-       canvasW * 0.63, canvasH * 0.81);  // 손 끝나는 지점
-
-  // 왼쪽 팔
   line(canvasW * 0.697, canvasH * 0.69, // 몸통 오른쪽 옆 시작점 
        canvasW * 0.71, canvasH * 0.76);  // 팔꿈치
   line(canvasW * 0.71, canvasH * 0.76, // 팔꿈치
        canvasW * 0.67, canvasH * 0.81);  // 손 끝나는 지점
-
-  // 오른쪽 손
-  circle(canvasW * 0.63, canvasH * 0.81, canvasW * 0.015); // 팔 끝에 동그라미 손
   // 왼쪽 손
   circle(canvasW * 0.665, canvasH * 0.81, canvasW * 0.015); // 팔 끝에 동그라미 손
   pop();
-  
+
   //다리
   push();
   strokeWeight(3);
@@ -881,7 +1255,7 @@ sleepCharacter=function()
   pop();
 };
 
-//조는 주인공의 눈
+//조는 주인공의 움직임
 sleepInBus=function()
 { 
   //눈 깜빡 거리기
@@ -937,17 +1311,86 @@ sleepInBus=function()
   pop();
 };
 
+//팔을 드는 주인공
+raiseArm=function() {
+    let currentTime = millis(); // 현재 시간 가져오기
+    let elapsedTime = currentTime - startTime;  // 경과 시간 계산
+
+  if (elapsedTime > 0 && elapsedTime < 6000){// 졸고 있을 때
+    fill(255);
+    // 오른쪽 팔
+    line(canvasW * 0.607, canvasH * 0.69, // 몸통 왼쪽 옆 시작점
+        canvasW * 0.6, canvasH * 0.76);  // 팔꿈치
+    line(canvasW * 0.6, canvasH * 0.76, // 팔꿈치
+        canvasW * 0.63, canvasH * 0.81);  // 손 끝나는 지점
+  } else if (elapsedTime > 6000) {  //팔을 들어 올려 벨 누름
+      push();
+      fill(255);
+      // 오른쪽 팔
+      line(canvasW * 0.607, canvasH * 0.69, // 몸통 왼쪽 옆 시작점
+           canvasW * 0.56, canvasH * 0.74);  // 팔꿈치
+      line(canvasW * 0.56, canvasH * 0.74, // 팔꿈치
+           canvasW * 0.54, canvasH * 0.6);  // 손 끝나는 지점
+      // 오른쪽 손
+      circle(canvasW * 0.54, canvasH * 0.6, canvasW * 0.015); // 팔 끝에 동그라미 손
+  }
+
+  //주인공 앞 좌석
+  //주인공 앞 좌석
+  push();
+ 
+  fill(150);
+  noStroke();
+  quad(
+    canvasW * 0.25, canvasH * 0.75,  // 좌상단
+    canvasW * 0.44, canvasH * 0.75,  // 우상단
+    canvasW * 0.44, canvasH * 0.99,  // 우하단
+    canvasW * 0.25, canvasH * 0.99);   // 좌하단. 맨 앞쪽 왼쪽 좌석
+     quad(
+    canvasW * 0.445, canvasH * 0.75,  // 좌상단
+    canvasW * 0.63, canvasH * 0.75,  // 우상단
+    canvasW * 0.63, canvasH * 0.99,  // 우하단
+    canvasW * 0.445, canvasH * 0.99);   // 좌하단. 맨 앞쪽 오른쪽 좌석
+    stroke(0);
+  pop();
+};
+
+//하차벨 인터랙션
+let bellPressed=false;//하차벨 안 눌려있다고 선언
+pressBell=function() {
+  push();
+  stroke(255);
+  strokeWeight(3);
+  if (bellPressed) {
+    fill(255, 50, 0); // 눌렀을 때 색 변화
+  } else {
+    fill(0, 0, 0); // 기본 색
+  }
+  ellipse(canvasW * 0.415, canvasH * 0.35, canvasW / 15, canvasW / 13);
+  fill(255);
+  rect(canvasW * 0.415, canvasH * 0.35, canvasW / 23, canvasW / 50);
+  fill(0);
+  text("stop", canvasW * 0.415, canvasH * 0.35);
+  pop();
+};
+
+function mousePressed() {
+  if (dist(mouseX, mouseY, canvasW * 0.41 , canvasH * 0.35) < canvasW / 15) {
+    bellPressed = true; //bellPressed설정
+  }
+}
+
 //4 함수
 //배경
 scene4Back = function() {
   push(); // 좌표계 저장
 
+  let xPosSpeed = 0;
+  let finalXPos = 0;
+  let scene4_startFrame = 150;
+  let scene4_endFrame = 450;
   frameRate(30);
-  let xPosSpeed = 0; // x축으로 이동할 방향 초기화
-  let finalXPos = 0; // 최종 x 위치를 저장할 변수
-  let scene4_startFrame = 150; // 시작 프레임(초당 30 츠레임-5초)
-  let scene4_endFrame = 600; // 종료 프레임(x축 이동 시간: 10초)
-  
+
   if (frameCount > scene4_startFrame && frameCount < scene4_endFrame) {
     xPosSpeed = (frameCount - scene4_startFrame) * 2;
     finalXPos = -xPosSpeed;
@@ -957,61 +1400,100 @@ scene4Back = function() {
     finalXPos = 0;
   }
 
-  translate(finalXPos, 0);
+  translate(finalXPos, 0); // 전체 씬을 왼쪽으로 이동
 
-  //보도 블록
+  // 배경 이미지 반복해서 이어붙이기
+  for (let i = 0; i < 4; i++) {
+    image(img3, canvasW * i, 0, canvasW, canvasH);
+  }
+
+  // 보도블럭
   rectMode(CORNER);
   stroke(0);
   quad(
-    canvasW * -1, canvasH * 0.93,  // 좌상단
-    canvasW * 9.1, canvasH * 0.93,  // 우상단
-    canvasW * 9.1, canvasH * 0.98,  // 우하단
-    canvasW * -1, canvasH * 0.98   // 좌하단 보도블럭
+    canvasW * -1, canvasH * 0.93,
+    canvasW * 9.1, canvasH * 0.93,
+    canvasW * 9.1, canvasH * 1,
+    canvasW * -1, canvasH * 1
   );
 
-  // 3. 정류장 구조물
-  rect(canvasW * 0.12, canvasH * 0.43, canvasW * 0.46, canvasH * 0.1); // 뒷받침
-  rect(canvasW * 0.12, canvasH * 0.46, canvasW * 0.05, canvasH * 0.47); // 왼쪽 기둥
-  rect(canvasW * 0.53, canvasH * 0.46, canvasW * 0.05, canvasH * 0.47); // 오른쪽 기둥
-  rect(canvasW * 0.12, canvasH * 0.39, canvasW * 0.46, canvasH * 0.07); // 윗머리판
-  rect(canvasW * 0.16, canvasH * 0.29, canvasW * 0.39, canvasH * 0.1); // 광고판
+  //정류장 구조물
+  noStroke();
+  fill(255, 100);
+  rect(canvasW * 0.12, canvasH * 0.43, canvasW * 0.46, canvasH * 0.5);
+  fill(100);
+  rect(canvasW * 0.12, canvasH * 0.43, canvasW * 0.46, canvasH * 0.1);
+  fill(150);
+  rect(canvasW * 0.12, canvasH * 0.46, canvasW * 0.05, canvasH * 0.47);
+  rect(canvasW * 0.53, canvasH * 0.46, canvasW * 0.05, canvasH * 0.47);
+  rect(canvasW * 0.12, canvasH * 0.39, canvasW * 0.46, canvasH * 0.07);
+  fill(185);
+  rect(canvasW * 0.16, canvasH * 0.29, canvasW * 0.39, canvasH * 0.1);
 
-  // 4. 버튼 화살표 (삼각형)
-  triangle(canvasW * 0.23, canvasH * 0.34, canvasW * 0.25, canvasH * 0.31, canvasW * 0.25, canvasH * 0.37); // 왼쪽
-  triangle(canvasW * 0.45, canvasH * 0.31, canvasW * 0.47, canvasH * 0.34, canvasW * 0.45, canvasH * 0.37); // 왼쪽
+  fill(100);
+  triangle(canvasW * 0.23, canvasH * 0.34, canvasW * 0.25, canvasH * 0.31, canvasW * 0.25, canvasH * 0.37);
+  triangle(canvasW * 0.45, canvasH * 0.31, canvasW * 0.47, canvasH * 0.34, canvasW * 0.45, canvasH * 0.37);
 
-  // 5. 안쪽 안내문
-  rect(canvasW * 0.19, canvasH * 0.55, canvasW * 0.2, canvasH * 0.08, 5); // 상단 안내문
-  rect(canvasW * 0.19, canvasH * 0.65, canvasW * 0.2, canvasH * 0.08, 5); // 하단 안내문
+  fill(160);
+  rect(canvasW * 0.19, canvasH * 0.55, canvasW * 0.2, canvasH * 0.08, 5);
+  rect(canvasW * 0.19, canvasH * 0.65, canvasW * 0.2, canvasH * 0.08, 5);
 
-  // 6. 벤치
-  rect(canvasW * 0.22, canvasH * 0.83, canvasW * 0.02, canvasH * 0.1); // 왼쪽 다리
-  rect(canvasW * 0.46, canvasH * 0.83, canvasW * 0.02, canvasH * 0.1); // 오른쪽 다리
-  rect(canvasW * 0.19, canvasH * 0.8, canvasW * 0.32, canvasH * 0.03, 5); // 벤치 상판
+  fill(50);
+  rect(canvasW * 0.22, canvasH * 0.83, canvasW * 0.02, canvasH * 0.1);
+  rect(canvasW * 0.46, canvasH * 0.83, canvasW * 0.02, canvasH * 0.1);
+  rect(canvasW * 0.19, canvasH * 0.8, canvasW * 0.32, canvasH * 0.03, 5);
 
-  // 7. 오른쪽 기둥과 연결되는 표지판
-  rect(canvasW * 0.66 - canvasW * 0.01, canvasH * 0.67, canvasW * 0.025, canvasH * 0.26);
-  rect(canvasW * 0.62, canvasH * 0.5, canvasW * 0.08, canvasH * 0.18, 8); // 표지판 상단
-  ellipse(canvasW * 0.66, canvasH * 0.58, canvasW * 0.05); // 원형 아이콘
+  // 파출소: translate 이후 좌표계 기준으로 오른쪽에 그리기
+  let policeX = canvasW * 1.2;
 
-  // 파출소
-  rect(canvasW * 1.35, canvasH * 0.17, canvasW * 0.7, canvasH * 0.76); // 건물 본체
-  rect(canvasW * 1.55, canvasH * 0.28, canvasW * 0.35, canvasH * 0.65); // 건물 큰 문
+  fill(100);
+  rect(policeX, canvasH * 0.17, canvasW * 0.7, canvasH * 0.76); // 건물 본체
 
-  rect(canvasW * 1.65, canvasH * 0.53, canvasW * 0.15, canvasH * 0.4); // 건물 두 번째 문
-  rect(canvasW * 1.65, canvasH * 0.53, canvasW * 0.08, canvasH * 0.4); // 건물 두 번째 문
-  rect(canvasW * 1.55, canvasH * 0.33, canvasW * 0.35, canvasH * 0.16); // 건물 간판
-  rect(canvasW * 1.55, canvasH * 0.35, canvasW * 0.35, canvasH * 0.12); // 건물 간판
+  fill(255);
+  rect(policeX + canvasW * 0.2, canvasH * 0.28, canvasW * 0.35, canvasH * 0.65); // 큰 문
+
+  fill(235);
+  rect(policeX + canvasW * 0.3, canvasH * 0.53, canvasW * 0.15, canvasH * 0.4); // 문 1
+  rect(policeX + canvasW * 0.3, canvasH * 0.53, canvasW * 0.08, canvasH * 0.4); // 문 2
+
+  fill(150);
+  rect(policeX + canvasW * 0.2, canvasH * 0.33, canvasW * 0.35, canvasH * 0.16); // 간판 배경
+  fill(200);
+  rect(policeX + canvasW * 0.2, canvasH * 0.35, canvasW * 0.35, canvasH * 0.12); // 간판 내용
 
   pop(); // 좌표계 복원
 };
+
+
+//버스가 움직임
+function drawBus(x,y){
+push();
+  fill(200);
+  rect(x,y+canvasH*0.2,canvasW*0.7,canvasH*0.55,5);
+  fill(250);
+   rect(x+canvasW*0.1,y+canvasH*0.1,canvasW*0.1,canvasH*0.25);
+   rect(x+canvasW*0.2,y+canvasH*0.1,canvasW*0.1,canvasH*0.25);
+   rect(x,y+canvasH*0.1,canvasW*0.1,canvasH*0.25);
+   rect(x-canvasW*0.1,y+canvasH*0.1,canvasW*0.1,canvasH*0.25);
+   rect(x-canvasW*0.2,y+canvasH*0.1,canvasW*0.1,canvasH*0.25);
+  fill(0);
+  circle(x-canvasW*0.15,y+canvasH*0.55,canvasW*0.13);
+  circle(x+canvasW*0.15,y+canvasH*0.55,canvasW*0.13);
+  fill(255);
+  circle(x-canvasW*0.15,y+canvasH*0.55,canvasW*0.05);
+  circle(x+canvasW*0.15,y+canvasH*0.55,canvasW*0.05);
+pop();
+}
 
 //주인공 경찰서로 걸어감
 walkPoliceCharacter=function()
 {
   push();
   rectMode(CENTER);
-  
+  let currentTime = millis(); // 현재 시간 가져오기
+  let elapsedTime = currentTime - startTime;  // 경과 시간 계산
+
+  if (elapsedTime > 0 && elapsedTime < 2000){// 내리고 버스 지나갈 때
   // 머리카락
   push();
   beginShape();
@@ -1099,12 +1581,236 @@ walkPoliceCharacter=function()
   strokeWeight(1);
   ellipse(canvasW * 0.155, canvasH * 0.7*1.64, canvasW * 0.025, canvasW * 0.015);
   ellipse(canvasW * 0.185, canvasH * 0.7*1.64, canvasW * 0.025, canvasW * 0.015);
+  }else if((elapsedTime > 2000 && elapsedTime < 5000)||(elapsedTime > 15000 && elapsedTime < 20000)){//우는 아이 발견
+    beginShape();
+    fill(0);
+    // 왼쪽에서 아래로 (왼쪽 바깥으로 이동)
+    vertex(canvasW * 0.11, canvasH * 0.886-canvasH * 0.04);
+    vertex(canvasW * 0.11, canvasH * 0.756-canvasH * 0.04); 
+
+  // 반원 (머리 위쪽)
+  bezierVertex(
+    canvasW * 0.11, canvasH * 0.646-canvasH * 0.04,   // 왼쪽 곡률 제어 더 위쪽
+    canvasW * 0.23, canvasH * 0.646-canvasH * 0.04,   // 오른쪽 곡률 제어 더 위쪽
+    canvasW * 0.23, canvasH * 0.756-canvasH * 0.04    // 오른쪽으로 내려옴
+  );
+
+  // 오른쪽 아래로 직선
+  vertex(canvasW * 0.13, canvasH * 0.906-canvasH * 0.04);
+
+  // 아래쪽 곡선으로 왼쪽 끝 연결
+  bezierVertex(
+    canvasW * 0.23, canvasH * 0.906-canvasH * 0.04,   // 오른쪽 아래 곡률 제어
+    canvasW * 0.1, canvasH * 0.906-canvasH * 0.04,   // 왼쪽 아래 곡률 제어
+    canvasW * 0.11, canvasH * 0.866-canvasH * 0.04
+  );
+  endShape();
   pop();
+  
+  //얼굴
+  push();
+  fill(255);
+  ellipse(canvasW * 0.17, canvasH * 0.746, canvasW * 0.1, canvasH * 0.2 );
   pop();
+
+  //앞머리
+  push();
+  fill(0);
+  noStroke();
+  arc(canvasW * 0.17, canvasH * 0.726, canvasW * 0.12, canvasH * 0.16, PI, 0);
+
+  //새로 생긴 머리
+  rect(canvasW * 0.144, canvasH * 0.781,canvasW * 0.047, canvasH * 0.13);
+  pop();
+
+  //귀
+  push();
+  fill(255);
+  arc(canvasW * 0.163, canvasH * 0.766, canvasW*0.02, canvasH*0.03,PI/2,PI*3/2);
+  pop();
+
+  //입 
+  push();
+  fill(220);
+  ellipse(canvasW * 0.205, canvasH * 0.796, canvasW * 0.01875, canvasH * 0.00555);
+  pop();
+
+  //눈
+  push();
+  fill(0);
+  ellipse(canvasW * 0.2, canvasH * 0.746, canvasW * 0.006, canvasH * 0.02);//오른른쪽
+  pop();
+
+  //몸
+  push();
+  fill(200);
+  rect(canvasW * 0.172, canvasH * 0.946, canvasW*0.09, canvasH * 0.2, 20 * (canvasW / 1600), 20 * (canvasW / 1600), 20 * (canvasW / 1600), 20 * (canvasW / 1600));
+  pop();
+
+  push();
+  fill(255);
+
+  // 왼쪽 팔
+  line(canvasW * 0.18, canvasH * 0.876, // 몸통 오른쪽 옆 시작점 
+    canvasW * 0.2, canvasH * 0.996);  // 팔꿈치
+
+  // 왼쪽 손
+  circle(canvasW * 0.2, canvasH * 0.996, canvasW * 0.015); // 팔 끝에 동그라미 손
+  pop();
+
+  push();
+  fill(255);
+  strokeWeight(3);
+  
+  // 오른쪽 다리
+  line(canvasW * 0.16, canvasH * 1.046, canvasW * 0.16, canvasH * 1.146);
+
+  // 왼쪽 다리
+  line(canvasW * 0.18, canvasH * 1.046, canvasW * 0.18, canvasH * 1.146);
+
+  //발
+  strokeWeight(1);
+  ellipse(canvasW * 0.16, canvasH * 1.146, canvasW * 0.025, canvasW * 0.015);
+  ellipse(canvasW * 0.18, canvasH * 1.146, canvasW * 0.025, canvasW * 0.015);
+  }else if(elapsedTime > 5000 && elapsedTime < 15000){//우는 아이와 걸어감
+    beginShape();
+    fill(0);
+    // 왼쪽에서 아래로 (왼쪽 바깥으로 이동)
+    vertex(canvasW * 0.11, canvasH * 0.886-canvasH * 0.04);
+    vertex(canvasW * 0.11, canvasH * 0.756-canvasH * 0.04); 
+
+   // 반원 (머리 위쪽)
+    bezierVertex(
+      canvasW * 0.11, canvasH * 0.646-canvasH * 0.04,   // 왼쪽 곡률 제어 더 위쪽
+      canvasW * 0.23, canvasH * 0.646-canvasH * 0.04,   // 오른쪽 곡률 제어 더 위쪽
+      canvasW * 0.23, canvasH * 0.756-canvasH * 0.04    // 오른쪽으로 내려옴
+    );
+
+  // 오른쪽 아래로 직선
+  vertex(canvasW * 0.13, canvasH * 0.906-canvasH * 0.04);
+
+  // 아래쪽 곡선으로 왼쪽 끝 연결
+  bezierVertex(
+    canvasW * 0.23, canvasH * 0.906-canvasH * 0.04,   // 오른쪽 아래 곡률 제어
+    canvasW * 0.1, canvasH * 0.906-canvasH * 0.04,   // 왼쪽 아래 곡률 제어
+    canvasW * 0.11, canvasH * 0.866-canvasH * 0.04
+  );
+  endShape();
+  pop();
+  
+  //얼굴
+  push();
+  fill(255);
+  ellipse(canvasW * 0.17, canvasH * 0.746, canvasW * 0.1, canvasH * 0.2 );
+  pop();
+
+  //앞머리
+  push();
+  fill(0);
+  noStroke();
+  arc(canvasW * 0.17, canvasH * 0.726, canvasW * 0.12, canvasH * 0.16, PI, 0);
+
+  //새로 생긴 머리
+  rect(canvasW * 0.144, canvasH * 0.781,canvasW * 0.047, canvasH * 0.13);
+  pop();
+
+  //귀
+  push();
+  fill(255);
+  arc(canvasW * 0.163, canvasH * 0.766, canvasW*0.02, canvasH*0.03,PI/2,PI*3/2);
+  pop();
+
+  //입 
+  push();
+  fill(220);
+  ellipse(canvasW * 0.205, canvasH * 0.796, canvasW * 0.01875, canvasH * 0.00555);
+  pop();
+
+  //눈
+  push();
+  fill(0);
+  ellipse(canvasW * 0.2, canvasH * 0.746, canvasW * 0.006, canvasH * 0.02);//오른른쪽
+  pop();
+  
+  //몸
+  push();
+  fill(200);
+  rect(canvasW * 0.172, canvasH * 0.946, canvasW*0.09, canvasH * 0.2, 20 * (canvasW / 1600), 20 * (canvasW / 1600), 20 * (canvasW / 1600), 20 * (canvasW / 1600));
+  pop();
+  
+  push();
+  fill(255);
+
+  // 왼쪽 팔
+  line(canvasW * 0.15, canvasH * 0.876, // 몸통 오른쪽 옆 시작점 
+    canvasW * 0.17, canvasH * 0.996);  // 팔꿈치
+
+  // 왼쪽 손
+  circle(canvasW * 0.17, canvasH * 0.996, canvasW * 0.015); // 팔 끝에 동그라미 손
+
+  // 오른쪽 팔
+  line(canvasW * 0.218, canvasH * 0.89, // 몸통 오른쪽 옆 시작점 
+    canvasW * 0.25, canvasH * 0.98);  // 팔꿈치
+
+  // 오른쪽 손
+  circle(canvasW * 0.25, canvasH * 0.98, canvasW * 0.015); // 팔 끝에 동그라미 손
+  pop();
+
+  let speed = 0.001; // 움직이는 속도 조절
+  let range = 0.03; // 다리가 움직이는 범위 조절
+
+  push();
+  fill(255);
+  strokeWeight(3);
+  
+  // 오른쪽 다리
+  let rightLegX = canvasW * 0.16 + canvasH * speed * (frameCount % 20); // 20프레임마다 반복
+  line(canvasW * 0.16, canvasH * 1.046, rightLegX, canvasH * 1.146);
+
+  // 왼쪽 다리
+  let leftLegX = canvasW * 0.18 - canvasH * speed * (frameCount % 20); // 20프레임마다 반복
+  line(canvasW * 0.18, canvasH * 1.046, leftLegX, canvasH * 1.146);
+
+  //발
+  strokeWeight(1);
+  ellipse(rightLegX + range * sin(frameCount * 0.1), canvasH * 1.146, canvasW * 0.025, canvasW * 0.015);
+  ellipse(leftLegX - range * sin(frameCount * 0.1), canvasH * 1.146, canvasW * 0.025, canvasW * 0.015);
+  }
+  pop();
+};
+
+//우산 들고 있음
+haveUmb=function(){
+  push();
+    rectMode(CORNER);
+    translate(canvasW * 0.29, canvasH * 0.985); // 위치 설정
+    scale(0.7); // 크기 축소
+    //손잡이
+    push();
+    fill(0);
+    rect(canvasW*0.08,canvasH*0.007,4,30);
+    pop();
+    // 우산천
+    push();
+    noStroke();
+    fill(150);
+    triangle(canvasW*0.07,canvasH*0.085,canvasW*0.065+28,canvasH*0.085,canvasW*0.065+14,canvasH*0.085+70);
+    pop();
+  push();
+  fill(220);
+  strokeWeight(4.7);
+  arc(canvasW*0.095,canvasH*0.007,20,20,PI,0);
+  
+  pop();
+
 };
 
 //아이 울고 있음
 cryChild = function() {
+  let currentTime = millis(); // 현재 시간 가져오기
+  let elapsedTime = currentTime - startTime;  // 경과 시간 계산
+
+  if (elapsedTime > 0 && elapsedTime < 4000){
     push();
     translate(canvasW * 0.3, canvasH * 0.94); // 아이 위치 설정
     scale(0.7); // 아이 크기 축소
@@ -1135,7 +1841,7 @@ cryChild = function() {
     fill(255);
     rect(-canvasW * 0, canvasH * 0.17, canvasW * 0.07, canvasH * 0.2, 5);
     pop();
-  
+
     // 팔
     stroke(0);
     line(-canvasW * 0.035, canvasH * 0.1, -canvasW * 0.08, canvasH * 0.05); // 오른쪽 팔
@@ -1159,14 +1865,122 @@ cryChild = function() {
     ellipse(-canvasW * 0.02, canvasH * 0.306, canvasW * 0.022, canvasW * 0.008);
     ellipse(canvasW * 0.02, canvasH * 0.306, canvasW * 0.022, canvasW * 0.008);  
     pop();
+  } else if(elapsedTime > 4000 && elapsedTime < 15000) {
+    push();
+    translate(canvasW * 0.3, canvasH * 0.94); // 아이 위치 설정
+    scale(0.7); // 아이 크기 축소
   
+    // 얼굴
+    ellipse(0, 0, canvasW * 0.08, canvasH * 0.12);
+
+    // 머리카락
+    push();
+    fill(0);
+    arc(-canvasW * 0.003, -canvasH * 0.02, canvasW * 0.085, canvasH * 0.15, PI, -PI/18);
+    arc(0, -canvasH * 0.02, canvasW * 0.09, canvasH * 0.165, PI/2, PI);
     pop();
+  
+    // 눈
+    fill(0);
+    ellipse(canvasW * 0.02, -canvasH * 0.01, canvasW * 0.008, canvasH * 0.012);
+  
+    // 입
+    push();
+    noFill();
+    arc(canvasW * 0.038, canvasH * 0.02, canvasW * 0.03, canvasH * 0.02, PI, -radians(60));
+    pop();
+  
+    // 몸통
+    push();
+    rectMode(CENTER);
+    fill(255);
+    rect(-canvasW * 0, canvasH * 0.17, canvasW * 0.07, canvasH * 0.2, 5);
+    pop();
+  
+    // 팔
+    stroke(0);
+    line(-canvasW * 0.02, canvasH * 0.1, -canvasW * 0.06, canvasH * 0.05);
+    //손
+    push();
+    fill(255);
+    ellipse(-canvasW * 0.06, canvasH * 0.05, canvasW * 0.01, canvasW * 0.01);  
+    pop();
+    
+    //아이 다리 움직임임
+    push();
+    let speed = 0.002; // 움직이는 속도 조절
+    let range = 0.03; // 다리가 움직이는 범위 조절
+    fill(255);
+    let rightLegX = -canvasW * 0.01 + canvasH * speed * (frameCount % 20); // 20프레임마다 반복
+    let leftLegX = canvasW * 0.01 - canvasH * speed * (frameCount % 20); // 20프레임마다 반복
+    // 다리
+    line(-canvasW * 0.01, canvasH * 0.27, leftLegX, canvasH * 0.306); // 오른쪽 다리
+    line(canvasW * 0.01, canvasH * 0.27, rightLegX, canvasH * 0.306); // 왼쪽 다리
+    //발
+    ellipse(leftLegX, canvasH * 0.306, canvasW * 0.022, canvasW * 0.008);
+    ellipse(rightLegX, canvasH * 0.306, canvasW * 0.022, canvasW * 0.008);  
+    pop();
+  } else if (elapsedTime > 15000 && elapsedTime < 20000){
+    push();
+    translate(canvasW * 0.3, canvasH * 0.94); // 아이 위치 설정
+    scale(0.7); // 아이 크기 축소
+  
+    // 얼굴
+    ellipse(0, 0, canvasW * 0.08, canvasH * 0.12);
+
+    // 머리카락
+    push();
+    fill(0);
+    arc(-canvasW * 0.003, -canvasH * 0.02, canvasW * 0.085, canvasH * 0.15, PI, -PI/18);
+    arc(0, -canvasH * 0.02, canvasW * 0.09, canvasH * 0.165, PI/2, PI);
+    pop();
+  
+    // 눈
+    fill(0);
+    ellipse(canvasW * 0.02, -canvasH * 0.01, canvasW * 0.008, canvasH * 0.012);
+  
+    // 입
+    push();
+    noFill();
+    arc(canvasW * 0.038, canvasH * 0.02, canvasW * 0.03, canvasH * 0.02, PI, -radians(60));
+    pop();
+  
+    // 몸통
+    push();
+    rectMode(CENTER);
+    fill(255);
+    rect(-canvasW * 0, canvasH * 0.17, canvasW * 0.07, canvasH * 0.2, 5);
+    pop();
+  
+    // 팔
+    stroke(0);
+    line(-canvasW * 0.02, canvasH * 0.1, -canvasW * 0.06, canvasH * 0.05);
+    //손
+    push();
+    fill(255);
+    ellipse(-canvasW * 0.06, canvasH * 0.05, canvasW * 0.01, canvasW * 0.01);  
+    pop();
+
+    push();
+    fill(255);
+    // 다리
+    line(-canvasW * 0.01, canvasH * 0.27, -canvasW * 0.01, canvasH * 0.306); // 오른쪽 다리
+    line(canvasW * 0.01, canvasH * 0.27, canvasW * 0.01, canvasH * 0.306); // 왼쪽 다리
+    //발
+    ellipse(-canvasW * 0.01, canvasH * 0.306, canvasW * 0.022, canvasW * 0.008);
+    ellipse(canvasW * 0.01, canvasH * 0.306, canvasW * 0.022, canvasW * 0.008);  
+    pop();    
+  }
 };
 
 //아이 눈물-GPT
 let tears = [];
 
 childTears=function() {
+  let currentTime = millis(); // 현재 시간 가져오기
+  let elapsedTime = currentTime - startTime;  // 경과 시간 계산
+
+  if (elapsedTime > 0 && elapsedTime < 4000){
     push();
     translate(canvasW * 0.3, canvasH * 0.94);
     scale(0.7);
@@ -1209,30 +2023,29 @@ childTears=function() {
     }
   
     pop();
+    }
   };
 
 //아이 엄마 등장
 wonderMom = function() {
     rectMode(CORNER);
-    push(); // 좌표계 저장
-
-    frameRate(30);
-    let xPosSpeed = 0; // x축으로 이동할 방향 초기화
+    let startFrame = 150; // 5초를 프레임으로 환산 (60fps 기준)
+    let endFrame = 700;
+    let xPosSpeed = 0;
     let finalXPos = 0; // 최종 x 위치를 저장할 변수
-    let scene4_startFrame = 150; // 시작 프레임(초당 30 츠레임-5초)
-    let scene4_endFrame = 600; // 종료 프레임(x축 이동 시간: 10초)
-  
-    if (frameCount > scene4_startFrame && frameCount < scene4_endFrame) {
-      xPosSpeed = (frameCount - scene4_startFrame) * 2;
-      finalXPos = -xPosSpeed;
-    } else if (frameCount >= scene4_endFrame) {
-      finalXPos = -(scene4_endFrame - scene4_startFrame) * 2;
-    } else {
-      finalXPos = 0;
-    }
 
-    translate(finalXPos, 0);
-  
+    if (frameCount > startFrame && frameCount < endFrame) {
+      xPosSpeed = (frameCount - startFrame) * 2;
+      finalXPos = -xPosSpeed;
+    }
+    else if(frameCount >= endFrame) {
+        xPosSpeed = endFrame;
+        finalXPos = -xPosSpeed; // 최종 위치 고정
+    }
+  let currentTime = millis(); // 현재 시간 가져오기
+  let elapsedTime = currentTime - startTime;  // 경과 시간 계산
+
+  if (elapsedTime > 0 && elapsedTime < 14000){
     push();
     translate(canvasW * 1.8 - xPosSpeed , canvasH * 0.76); // 엄마 위치 설정 (파출소 옆)
     scale(1.27); // 엄마 크기 설정 (아이보다 약간 크게)
@@ -1291,6 +2104,72 @@ wonderMom = function() {
     ellipse(-canvasW * 0.022, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009); // 오른쪽 발
     ellipse(canvasW * 0.022, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009); // 왼쪽 발
     pop();
+  } else if(elapsedTime > 14000 && elapsedTime < 20000) {
+    push();
+    translate(canvasW * 1.8 - xPosSpeed , canvasH * 0.76); // 엄마 위치 설정 (파출소 옆)
+    scale(1.27); // 엄마 크기 설정 (아이보다 약간 크게)
+
+    // 얼굴
+    push();
+    fill(255);
+    ellipse(0, 0, canvasW * 0.09, canvasH * 0.13);
+    pop();
+    //머리카락
+    push();
+    fill(0); // 검정색 머리
+    arc(canvasW * 0.003, -canvasH * 0.04, canvasW * 0.09, canvasH * 0.1, PI, 0); // 머리 스타일
+    arc(0, 0, canvasW * 0.09, canvasH * 0.13, -PI/2, PI/2); // 머리 스타일
+    ellipse(canvasW * 0.03, -canvasH * 0.06, canvasW * 0.04, canvasH * 0.07);
+    pop();
+
+    // 눈
+    fill(0);
+    ellipse(-canvasW * 0.022, -canvasH * 0.02, canvasW * 0.009, canvasH * 0.013); // 왼쪽 눈
+
+    // 입
+    push();
+    noFill();
+    stroke(0);
+    arc(-canvasW * 0.045, canvasH * 0.02, canvasW * 0.035, canvasH * 0.02, radians(300), 0);
+    pop();
+
+    // 몸통
+    push();
+    rectMode(CORNER);
+    fill(255);
+    rect(-canvasW * 0.038, canvasH * 0.06, canvasW * 0.075, canvasH * 0.2, 5);
+    pop();
+
+    // 팔
+    stroke(0);
+    line(-canvasW * 0.04, canvasH * 0.07, -canvasW * 0.07, canvasH * 0.05); // 오른쪽 팔
+    line(canvasW * 0.03, canvasH * 0.1, -canvasW * 0.02, canvasH * 0.05); // 왼쪽 팔
+
+    // 손
+    push();
+    fill(255);
+    ellipse(-canvasW * 0.07, canvasH * 0.05, canvasW * 0.012, canvasW * 0.012); // 오른쪽 손
+    ellipse(-canvasW * 0.02, canvasH * 0.05, canvasW * 0.012, canvasW * 0.012); // 왼쪽 손
+    pop();
+
+    let speed = 0.002; // 움직이는 속도 조절
+    let range = 0.03; // 다리가 움직이는 범위 조절
+    fill(255);
+    let rightLegX = -canvasW * 0.012 + canvasH * speed * (frameCount % 20); // 20프레임마다 반복
+    let leftLegX = canvasW * 0.012 - canvasH * speed * (frameCount % 20); // 20프레임마다 반복
+    // 다리
+    push();
+    strokeWeight(4);
+    line(-canvasW * 0.012, canvasH * 0.26, leftLegX, canvasH * 0.31); // 오른쪽 다리
+    line(canvasW * 0.012, canvasH * 0.26, rightLegX, canvasH * 0.31); // 왼쪽 다리
+    pop();
+    //발
+    push();
+    fill(255);
+    ellipse(leftLegX, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009);
+    ellipse(rightLegX, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009);  
+    pop();
+  }
 
  pop();
 };
@@ -1299,7 +2178,9 @@ wonderMom = function() {
 //배경
 scene5Back=function(){
     push();
-    rectMode(CORNER);
+     rectMode(CORNER);
+     fill(150);
+      noStroke();
     // 왼쪽 벽면
     quad(0, 0,
          canvasW * 0.35, canvasH * 0.25,
@@ -1312,16 +2193,18 @@ scene5Back=function(){
       canvasW * 0.65, canvasH * 0.25,
       canvasW * 0.65, canvasH * 0.75,
       canvasW, canvasH);
-  
+       fill(100);
     // 중앙 기둥
     rect(canvasW * 0.15, canvasH * 0.02, canvasW * 0.1, canvasH * 0.9);
     rect(canvasW * 0.15, canvasH * 0.4, canvasW * 0.1, canvasH * 0.3);
   
-  
+    stroke(255);
+    strokeWeight(7);
     // 사선 세 줄 (왼쪽 아래 ↗ 오른쪽 위)
     line(canvasW * 0.15, canvasH * 0.47, canvasW * 0.25, canvasH * 0.5);
     line(canvasW * 0.15, canvasH * 0.54, canvasW * 0.25, canvasH * 0.57);
     line(canvasW * 0.15, canvasH * 0.61, canvasW * 0.25, canvasH * 0.64);
+
     pop();
   };
 
@@ -1387,8 +2270,34 @@ scene5Back=function(){
     pop();
   }
 
-//멀어지는 아이
-  drawChild = function() {
+//umbrella
+findUmb=function(){
+  push();
+    rectMode(CORNER);
+    translate(canvasW * 0.57, canvasH * 0.69); // 위치 설정
+    scale(0.7); // 크기 축소
+    //손잡이
+    push();
+    fill(0);
+    rect(canvasW*0.08,canvasH*0.007,4,30);
+    pop();
+    // 우산천
+    push();
+    noStroke();
+    fill(255,255,0);
+    triangle(canvasW*0.07,canvasH*0.085,canvasW*0.065+28,canvasH*0.085,canvasW*0.065+14,canvasH*0.085+70);
+    pop();
+  push();
+  fill(220);
+  strokeWeight(4.7);
+  arc(canvasW*0.095,canvasH*0.007,20,20,PI,0);
+  
+  pop();
+
+};
+
+//아이
+drawChild = function() {
     push();
     rectMode(CORNER);
     translate(canvasW * 0.57, canvasH * 0.69); // 아이 위치 설정
@@ -1432,56 +2341,56 @@ scene5Back=function(){
     pop();
   
     pop();
-  };
+};
   
-//멀어지는 아이 엄마
-  childMom = function() {
-      push();
-      rectMode(CORNER);
-      translate(canvasW * 0.45, canvasH*0.5);
-      scale(1.27); // 엄마 크기 설정 (아이보다 약간 크게)
+//아이 엄마
+childMom = function() {
+  push();
+  rectMode(CORNER);
+  translate(canvasW * 0.45, canvasH*0.5);
+  scale(1.27); // 엄마 크기 설정 (아이보다 약간 크게)
   
-      // 머리카락
-      push();
-      fill(0); // 검정색 머리
-      ellipse(0, -canvasH * 0.015, canvasW * 0.1, canvasH * 0.16); // 머리 스타일
-      ellipse(0, -canvasH * 0.1, canvasW * 0.06, canvasH * 0.06);
-      pop();
+  // 머리카락
+  push();
+  fill(0); // 검정색 머리
+  ellipse(0, -canvasH * 0.015, canvasW * 0.1, canvasH * 0.16); // 머리 스타일
+  ellipse(0, -canvasH * 0.1, canvasW * 0.06, canvasH * 0.06);
+  pop();
     
-      // 팔
-      line(-canvasW * 0.04, canvasH * 0.1, -canvasW * 0.045, canvasH * 0.2); // 오른쪽 팔
-      line(canvasW * 0.038, canvasH * 0.1, canvasW * 0.042, canvasH * 0.15); // 왼쪽 팔
-      line(canvasW * 0.042, canvasH * 0.15, canvasW * 0.047, canvasH * 0.2); // 왼쪽 팔
+  // 팔
+  line(-canvasW * 0.04, canvasH * 0.1, -canvasW * 0.045, canvasH * 0.2); // 오른쪽 팔
+  line(canvasW * 0.038, canvasH * 0.1, canvasW * 0.042, canvasH * 0.15); // 왼쪽 팔
+  line(canvasW * 0.042, canvasH * 0.15, canvasW * 0.047, canvasH * 0.2); // 왼쪽 팔
   
-      // 손
-      push();
-      fill(255);
-      ellipse(-canvasW * 0.045, canvasH * 0.2, canvasW * 0.012, canvasW * 0.012); // 오른쪽 손
-      ellipse(canvasW * 0.047, canvasH * 0.2, canvasW * 0.012, canvasW * 0.012); // 왼쪽 손
-      pop();
+  // 손
+  push();
+  fill(255);
+  ellipse(-canvasW * 0.045, canvasH * 0.2, canvasW * 0.012, canvasW * 0.012); // 오른쪽 손
+  ellipse(canvasW * 0.047, canvasH * 0.2, canvasW * 0.012, canvasW * 0.012); // 왼쪽 손
+  pop();
   
-      // 다리
-      push();
-      strokeWeight(4);
-      line(-canvasW * 0.022, canvasH * 0.26, -canvasW * 0.022, canvasH * 0.31); // 오른쪽 다리
-      line(canvasW * 0.022, canvasH * 0.26, canvasW * 0.022, canvasH * 0.31); // 왼쪽 다리
-      pop();
+  // 다리
+  push();
+  strokeWeight(4);
+  line(-canvasW * 0.022, canvasH * 0.26, -canvasW * 0.022, canvasH * 0.31); // 오른쪽 다리
+  line(canvasW * 0.022, canvasH * 0.26, canvasW * 0.022, canvasH * 0.31); // 왼쪽 다리
+  pop();
     
-      // 발
-      push();
-      fill(255);
-      ellipse(-canvasW * 0.022, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009); // 오른쪽 발
-      ellipse(canvasW * 0.022, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009); // 왼쪽 발
-      pop();
+  // 발
+  push();
+  fill(255);
+  ellipse(-canvasW * 0.022, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009); // 오른쪽 발
+  ellipse(canvasW * 0.022, canvasH * 0.31, canvasW * 0.025, canvasW * 0.009); // 왼쪽 발
+  pop();
     
-      // 몸통
-      push();
-      fill(255);
-      rect(-canvasW * 0.038, canvasH * 0.06, canvasW * 0.075, canvasH * 0.2, 5);
-      pop();
+  // 몸통
+  push();
+  fill(255);
+  rect(-canvasW * 0.038, canvasH * 0.06, canvasW * 0.075, canvasH * 0.2, 5);
+  pop();
   
-   pop();
-  };
+  pop();
+};
   
 //멀어지는 함수-Chat GPT
   function goSmall(characterFunction, frameCount, startScale, endScale, startYOffset, endYOffset) {
@@ -1589,16 +2498,40 @@ let credits = [
     " ",
     "디자인",
     "김나연: 등장인물 & 핵심 요소 디자인",
-    "이송연: 소품, 크레딧 디자인",
+    "이송연: 소품, 크레딧 디자인, 발표 PPT",
     "조윤서: 배경 디자인",
     " ",
     "코드",
-    "김나연: 등장인물관련 코드 작성, 함수 합치기",
-    "이송연: 소품 관련 코드 작성, 소리 삽입",
-    "조윤서: 배경 , 크레딧 및 오프닝 연출",
+    "김나연: 등장인물관련 코드 작성, 코드 합본 작성성",
+    "이송연: 소품 관련 코드 작성",
+    "조윤서: 배경 코드 작성, 크레딧 및 오프닝 연출",
+    "AI활용",
+    ": ",
     " ",
-    "-Flow-"
+    "-Flow-",
+    " ",
+    " ",
+    "-소감-",
+    " ",
+    "김나연",
+    "이번 프로젝트를 통해 한 학기 동안 쌓아온 지식과 기술을",
+    "실제로 구현하며 깊이 있게 이해할 수 있었습니다.",
+    "팀원들과 함께 직접 부딪히고 고민하며 완성한 결과물이기에 더웃 뜻깊고",
+    "이번 경험이 앞으로의 학습에도 큰 동기부여가 될 것입니다.",
+    " ",
+    "이송연",
+    "팀원분들과 스토리를 짜고 세부사항을 의논하는 과정에서",
+    "소통 능력을 기를 수 있었습니다.",
+    "내가 맡은 부분에 책임을 다할 수 있도록",
+    "노력하면서 성장할 수 있는 계기가 된 팀플이었습니다.",
+    " ",
+    "조윤서",
+    "직접 프로젝트를 구현해 본다는 것이 생소하기도 했지만,",
+    "다시는 해볼 수 없는 경험이라 생각하며 최선을 다했습니다.",
+    "앞으로의 학업이나 진로 방향성이 it분야를 향하지 않더라도,",
+    "꾸준히 개발에 대해 배우며 더웃 공부할 수 있으면 좋겠습니다.",
+    "좋은 팀원분들을 만나 정말 감사했습니다.",
+    ""
     ];
     
 let yStart;
-    
